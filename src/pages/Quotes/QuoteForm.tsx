@@ -256,7 +256,7 @@ export function QuoteForm() {
                       />
                     </td>
                     <td className="px-4 py-2 text-right font-medium">
-                      {(item.quantity * item.unitPrice * (1 + item.taxRate/100)).toFixed(2)} DZD
+                      {(item.quantity * item.unitPrice * (1 + item.taxRate/100)).toFixed(2)} TND
                     </td>
                     <td className="px-4 py-2">
                       {items.length > 1 && (
@@ -279,15 +279,15 @@ export function QuoteForm() {
             <div className="w-72 space-y-2">
               <div className="flex justify-between text-sm">
                 <span>Total HT:</span>
-                <span>{totals.subtotal.toFixed(2)} DZD</span>
+                <span>{totals.subtotal.toFixed(2)} TND</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span>Total TVA:</span>
-                <span>{totals.taxTotal.toFixed(2)} DZD</span>
+                <span>{totals.taxTotal.toFixed(2)} TND</span>
               </div>
               <div className="flex justify-between text-lg font-bold border-t pt-2">
                 <span>Total TTC:</span>
-                <span>{totals.total.toFixed(2)} DZD</span>
+                <span>{totals.total.toFixed(2)} TND</span>
               </div>
             </div>
           </div>
