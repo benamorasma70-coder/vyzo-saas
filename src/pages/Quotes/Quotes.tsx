@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../services/api'
-import { Plus, Search, Eye, CheckCircle } from 'lucide-react'
+import { Plus, Search, Eye, CheckCircle, Loader2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
 interface Quote {
@@ -18,6 +18,7 @@ export function Quotes() {
   const [quotes, setQuotes] = useState<Quote[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
+  const [convertingId, setConvertingId] = useState<string | null>(null)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -30,6 +31,7 @@ export function Quotes() {
       setQuotes(response.data)
     } catch (error) {
       console.error('Error fetching quotes:', error)
+      alert('Erreur lors du chargement des devis')
     } finally {
       setLoading(false)
     }
@@ -37,11 +39,15 @@ export function Quotes() {
 
   const handleConvert = async (id: string) => {
     if (!confirm('Convertir ce devis en facture ?')) return
+    setConvertingId(id)
     try {
       const response = await api.post(`/quotes/${id}/convert`)
       navigate(`/invoices/${response.data.invoiceId}`)
     } catch (error) {
+      console.error('Conversion error:', error)
       alert('Erreur lors de la conversion')
+    } finally {
+      setConvertingId(null)
     }
   }
 
@@ -70,7 +76,7 @@ export function Quotes() {
     q.contact_name?.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
-  if (loading) return <div>Chargement...</div>
+  if (loading) return <div className="text-center py-10">Chargement...</div>
 
   return (
     <div>
@@ -95,60 +101,70 @@ export function Quotes() {
         </button>
       </div>
 
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <table className="w-full">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">N° Devis</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Client</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Expiration</th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Total</th>
-              <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Statut</th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200">
-            {filteredQuotes.map((quote) => (
-              <tr key={quote.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 font-mono text-sm text-gray-600">{quote.quote_number}</td>
-                <td className="px-6 py-4">
-                  <div className="font-medium text-gray-900">{quote.customer_name || quote.contact_name}</div>
-                </td>
-                <td className="px-6 py-4 text-sm text-gray-500">{quote.issue_date}</td>
-                <td className="px-6 py-4 text-sm text-gray-500">{quote.expiry_date || '-'}</td>
-                <td className="px-6 py-4 text-right font-medium">
-                  {quote.total.toLocaleString()} DZD
-                </td>
-                <td className="px-6 py-4 text-center">
-                  <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(quote.status)}`}>
-                    {getStatusLabel(quote.status)}
-                  </span>
-                </td>
-                <td className="px-6 py-4 text-right">
-                  <button
-                    onClick={() => navigate(`/quotes/${quote.id}`)}
-                    className="text-blue-600 hover:text-blue-900 mr-3"
-                    title="Voir"
-                  >
-                    <Eye className="w-5 h-5" />
-                  </button>
-                  {quote.status === 'draft' && (
-                    <button
-                      onClick={() => handleConvert(quote.id)}
-                      className="text-green-600 hover:text-green-900 mr-3"
-                      title="Convertir en facture"
-                    >
-                      <CheckCircle className="w-5 h-5" />
-                    </button>
-                  )}
-                </td>
+      {filteredQuotes.length === 0 ? (
+        <div className="bg-white rounded-lg shadow p-8 text-center text-gray-500">
+          Aucun devis trouvé
+        </div>
+      ) : (
+        <div className="bg-white rounded-lg shadow overflow-hidden">
+          <table className="w-full">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">N° Devis</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Client</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Expiration</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Total</th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Statut</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {filteredQuotes.map((quote) => (
+                <tr key={quote.id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 font-mono text-sm text-gray-600">{quote.quote_number}</td>
+                  <td className="px-6 py-4">
+                    <div className="font-medium text-gray-900">{quote.customer_name || quote.contact_name}</div>
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-500">{quote.issue_date}</td>
+                  <td className="px-6 py-4 text-sm text-gray-500">{quote.expiry_date || '-'}</td>
+                  <td className="px-6 py-4 text-right font-medium">
+                    {quote.total.toLocaleString()} DZD
+                  </td>
+                  <td className="px-6 py-4 text-center">
+                    <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(quote.status)}`}>
+                      {getStatusLabel(quote.status)}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <button
+                      onClick={() => navigate(`/quotes/${quote.id}`)}
+                      className="text-blue-600 hover:text-blue-900 mr-3"
+                      title="Voir"
+                    >
+                      <Eye className="w-5 h-5" />
+                    </button>
+                    {quote.status === 'draft' && (
+                      <button
+                        onClick={() => handleConvert(quote.id)}
+                        disabled={convertingId === quote.id}
+                        className="text-green-600 hover:text-green-900 mr-3 disabled:opacity-50"
+                        title="Convertir en facture"
+                      >
+                        {convertingId === quote.id ? (
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                        ) : (
+                          <CheckCircle className="w-5 h-5" />
+                        )}
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   )
 }
-
