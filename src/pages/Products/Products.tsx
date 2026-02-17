@@ -142,7 +142,7 @@ export function Products() {
 
       {isModalOpen && (
         <ProductModal
-          product={selectedProduct}
+          product={selectedProduct as any}
           onClose={() => setIsModalOpen(false)}
           onSave={fetchProducts}
         />
@@ -150,3 +150,4 @@ export function Products() {
     </div>
   )
 }
+
