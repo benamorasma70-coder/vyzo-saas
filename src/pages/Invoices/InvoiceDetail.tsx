@@ -140,10 +140,10 @@ export function InvoiceDetail() {
                 <tr key={item.id} className="border-b">
                   <td className="px-4 py-2">{item.description}</td>
                   <td className="px-4 py-2 text-right">{item.quantity}</td>
-                  <td className="px-4 py-2 text-right">{item.unit_price.toFixed(2)} DZD</td>
+                  <td className="px-4 py-2 text-right">{item.unit_price.toFixed(2)} TND</td>
                   <td className="px-4 py-2 text-right">{item.tax_rate}%</td>
                   <td className="px-4 py-2 text-right">
-                    {(item.quantity * item.unit_price * (1 + item.tax_rate/100)).toFixed(2)} DZD
+                    {(item.quantity * item.unit_price * (1 + item.tax_rate/100)).toFixed(2)} TND
                   </td>
                 </tr>
               ))}
@@ -155,7 +155,7 @@ export function InvoiceDetail() {
           <div className="w-72">
             <div className="flex justify-between font-bold">
               <span>Total TTC :</span>
-              <span>{invoice.total.toFixed(2)} DZD</span>
+              <span>{invoice.total.toFixed(2)} TND</span>
             </div>
           </div>
         </div>
