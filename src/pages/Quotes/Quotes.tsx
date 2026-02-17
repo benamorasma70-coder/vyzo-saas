@@ -7,11 +7,11 @@ interface Quote {
   id: string
   quote_number: string
   issue_date: string
-  expiry_date: string
+  expiry_date?: string | null
   total: number
   status: string
-  customer_name: string
-  contact_name: string
+  customer_name?: string | null
+  contact_name?: string | null
 }
 
 export function Quotes() {
@@ -72,8 +72,8 @@ export function Quotes() {
 
   const filteredQuotes = quotes.filter(q => 
     q.quote_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    q.customer_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    q.contact_name?.toLowerCase().includes(searchTerm.toLowerCase())
+    (q.customer_name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (q.contact_name?.toLowerCase() || '').includes(searchTerm.toLowerCase())
   )
 
   if (loading) return <div className="text-center py-10">Chargement...</div>
@@ -91,7 +91,6 @@ export function Quotes() {
             className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
           />
         </div>
-        
         <button
           onClick={() => navigate('/quotes/new')}
           className="flex items-center px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
@@ -124,10 +123,10 @@ export function Quotes() {
                 <tr key={quote.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 font-mono text-sm text-gray-600">{quote.quote_number}</td>
                   <td className="px-6 py-4">
-                    <div className="font-medium text-gray-900">{quote.customer_name || quote.contact_name}</div>
+                    <div className="font-medium text-gray-900">{quote.customer_name ?? quote.contact_name ?? '-'}</div>
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-500">{quote.issue_date}</td>
-                  <td className="px-6 py-4 text-sm text-gray-500">{quote.expiry_date || '-'}</td>
+                  <td className="px-6 py-4 text-sm text-gray-500">{quote.expiry_date ?? '-'}</td>
                   <td className="px-6 py-4 text-right font-medium">
                     {quote.total.toLocaleString()} DZD
                   </td>
