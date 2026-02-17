@@ -90,7 +90,7 @@ export function DeliveryForm() {
     } else {
       console.warn('Produit non trouvé pour ID:', productId);
     }
-  };
+  }
 
   const calculateTotal = () => {
     return items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0)
