@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../services/api'
-import { Plus, Search, Eye, FileText, CheckCircle, XCircle } from 'lucide-react'
+import { Plus, Search, Eye, CheckCircle } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
 interface Quote {
@@ -151,3 +151,4 @@ export function Quotes() {
     </div>
   )
 }
+
