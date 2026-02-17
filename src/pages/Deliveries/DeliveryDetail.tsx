@@ -130,7 +130,7 @@ export function DeliveryDetail() {
                   <td className="px-4 py-2 text-right">{item.quantity}</td>
                   <td className="px-4 py-2 text-right">{item.unit_price.toFixed(2)}</td>
                   <td className="px-4 py-2 text-right">{item.tax_rate}</td>
-                  <td className="px-4 py-2 text-right">{total.toFixed(2)} DZD</td>
+                  <td className="px-4 py-2 text-right">{total.toFixed(2)} TND</td>
                 </tr>
               )
             })}
@@ -141,7 +141,7 @@ export function DeliveryDetail() {
           <div className="w-72">
             <div className="flex justify-between text-lg font-bold border-t pt-2">
               <span>Total TTC :</span>
-              <span>{Number.isNaN(Number(delivery.total)) ? '—' : delivery.total.toFixed(2)} DZD</span>
+              <span>{Number.isNaN(Number(delivery.total)) ? '—' : delivery.total.toFixed(2)} TND</span>
             </div>
           </div>
         </div>
