@@ -47,22 +47,21 @@ export function InvoiceForm() {
     return { subtotal, taxTotal, total: subtotal + taxTotal }
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    const totals = calculateTotals()
-    try {
-      await api.post('/invoices', {
-        customerId,
-        items,
-        issueDate,
-        dueDate,
-        notes,
-      })
-      navigate('/invoices')
-    } catch (error) {
-      console.error('Error creating invoice:', error)
-    }
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault()
+  try {
+    await api.post('/invoices', {
+      customerId,
+      items,
+      issueDate,
+      dueDate,
+      notes,
+    })
+    navigate('/invoices')
+  } catch (error) {
+    console.error('Error creating invoice:', error)
   }
+}
 
   const totals = calculateTotals()
 
@@ -244,4 +243,5 @@ export function InvoiceForm() {
     </div>
   )
 }
+
 
