@@ -126,7 +126,7 @@ export function Deliveries() {
                   <td className="px-6 py-4 font-medium text-gray-900">{delivery.customer_name}</td>
                   <td className="px-6 py-4 text-sm text-gray-500">{delivery.delivery_date}</td>
                   <td className="px-6 py-4 text-right font-medium">
-                    {delivery.total.toLocaleString()} DZD
+                    {delivery.total.toLocaleString()} TND
                   </td>
                   <td className="px-6 py-4 text-center">
                     <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(delivery.status)}`}>
@@ -163,3 +163,4 @@ export function Deliveries() {
     </div>
   )
 }
+
