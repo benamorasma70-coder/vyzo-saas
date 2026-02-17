@@ -27,9 +27,9 @@ interface Quote {
 
 // Utility functions
 const formatCurrency = (value: number): string => {
-  return new Intl.NumberFormat('fr-DZ', {
+  return new Intl.NumberFormat('fr-TN', {
     style: 'currency',
-    currency: 'DZD',
+    currency: 'TND',
   }).format(value)
 }
 
