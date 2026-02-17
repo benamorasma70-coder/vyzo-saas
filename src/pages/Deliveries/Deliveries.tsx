@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../services/api'
-import { Plus, Search, Eye } from 'lucide-react'
+import { Plus, Search, Eye, FileText, Loader2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
 interface Delivery {
@@ -16,6 +16,7 @@ export function Deliveries() {
   const [deliveries, setDeliveries] = useState<Delivery[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
+  const [downloadingId, setDownloadingId] = useState<string | null>(null)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -28,8 +29,30 @@ export function Deliveries() {
       setDeliveries(response.data)
     } catch (error) {
       console.error('Error fetching deliveries:', error)
+      alert('Erreur lors du chargement des bons de livraison')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleDownloadPdf = async (id: string, number: string) => {
+    setDownloadingId(id)
+    try {
+      const response = await api.get(`/deliveries/${id}/pdf`, {
+        responseType: 'blob',
+      })
+      const url = window.URL.createObjectURL(new Blob([response.data]))
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', `BL-${number}.pdf`)
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+      window.URL.revokeObjectURL(url)
+    } catch (error) {
+      alert('Erreur lors du téléchargement du PDF')
+    } finally {
+      setDownloadingId(null)
     }
   }
 
@@ -49,13 +72,12 @@ export function Deliveries() {
     }
   }
 
-  // Filtrer les BL en fonction du terme de recherche
   const filteredDeliveries = deliveries.filter(delivery =>
     delivery.delivery_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
     delivery.customer_name?.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
-  if (loading) return <div>Chargement...</div>
+  if (loading) return <div className="text-center py-10">Chargement...</div>
 
   return (
     <div>
@@ -80,45 +102,64 @@ export function Deliveries() {
         </button>
       </div>
 
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <table className="w-full">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">N° BL</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Client</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Total</th>
-              <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Statut</th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200">
-            {filteredDeliveries.map((delivery) => (
-              <tr key={delivery.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 font-mono text-sm text-gray-600">{delivery.delivery_number}</td>
-                <td className="px-6 py-4 font-medium text-gray-900">{delivery.customer_name}</td>
-                <td className="px-6 py-4 text-sm text-gray-500">{delivery.delivery_date}</td>
-                <td className="px-6 py-4 text-right font-medium">
-                  {delivery.total.toLocaleString()} DZD
-                </td>
-                <td className="px-6 py-4 text-center">
-                  <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(delivery.status)}`}>
-                    {getStatusLabel(delivery.status)}
-                  </span>
-                </td>
-                <td className="px-6 py-4 text-right">
-                  <button
-                    onClick={() => navigate(`/deliveries/${delivery.id}`)}
-                    className="text-blue-600 hover:text-blue-900 mr-3"
-                  >
-                    <Eye className="w-5 h-5" />
-                  </button>
-                </td>
+      {filteredDeliveries.length === 0 ? (
+        <div className="bg-white rounded-lg shadow p-8 text-center text-gray-500">
+          Aucun bon de livraison trouvé
+        </div>
+      ) : (
+        <div className="bg-white rounded-lg shadow overflow-hidden">
+          <table className="w-full">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">N° BL</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Client</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Total</th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Statut</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {filteredDeliveries.map((delivery) => (
+                <tr key={delivery.id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 font-mono text-sm text-gray-600">{delivery.delivery_number}</td>
+                  <td className="px-6 py-4 font-medium text-gray-900">{delivery.customer_name}</td>
+                  <td className="px-6 py-4 text-sm text-gray-500">{delivery.delivery_date}</td>
+                  <td className="px-6 py-4 text-right font-medium">
+                    {delivery.total.toLocaleString()} DZD
+                  </td>
+                  <td className="px-6 py-4 text-center">
+                    <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(delivery.status)}`}>
+                      {getStatusLabel(delivery.status)}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <button
+                      onClick={() => navigate(`/deliveries/${delivery.id}`)}
+                      className="text-blue-600 hover:text-blue-900 mr-3"
+                      title="Voir"
+                    >
+                      <Eye className="w-5 h-5" />
+                    </button>
+                    <button
+                      onClick={() => handleDownloadPdf(delivery.id, delivery.delivery_number)}
+                      disabled={downloadingId === delivery.id}
+                      className="text-orange-600 hover:text-orange-900 mr-3 disabled:opacity-50"
+                      title="Télécharger PDF"
+                    >
+                      {downloadingId === delivery.id ? (
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                      ) : (
+                        <FileText className="w-5 h-5" />
+                      )}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   )
 }
