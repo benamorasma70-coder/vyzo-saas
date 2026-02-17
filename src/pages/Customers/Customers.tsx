@@ -136,7 +136,7 @@ export function Customers() {
 
       {isModalOpen && (
         <CustomerModal
-          customer={selectedCustomer}
+          customer={selectedCustomer as any}
           onClose={() => setIsModalOpen(false)}
           onSave={fetchCustomers}
         />
@@ -144,3 +144,4 @@ export function Customers() {
     </div>
   )
 }
+
