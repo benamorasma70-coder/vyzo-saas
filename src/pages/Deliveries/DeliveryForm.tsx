@@ -223,7 +223,7 @@ export function DeliveryForm() {
                       />
                     </td>
                     <td className="px-4 py-2 text-right font-medium">
-                      {(item.quantity * item.unitPrice).toFixed(2)} DZD
+                      {(item.quantity * item.unitPrice).toFixed(2)} TND
                     </td>
                     <td className="px-4 py-2">
                       {items.length > 1 && (
@@ -246,7 +246,7 @@ export function DeliveryForm() {
             <div className="w-72">
               <div className="flex justify-between text-lg font-bold border-t pt-2">
                 <span>Total TTC:</span>
-                <span>{total.toFixed(2)} DZD</span>
+                <span>{total.toFixed(2)} TND</span>
               </div>
             </div>
           </div>
