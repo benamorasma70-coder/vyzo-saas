@@ -281,15 +281,15 @@ export function InvoiceForm() {
             <div className="w-72 space-y-2">
               <div className="flex justify-between text-sm">
                 <span>Total HT:</span>
-                <span>{totals.subtotal.toFixed(2)} DZD</span>
+                <span>{totals.subtotal.toFixed(2)} TND</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span>Total TVA:</span>
-                <span>{totals.taxTotal.toFixed(2)} DZD</span>
+                <span>{totals.taxTotal.toFixed(2)} TND</span>
               </div>
               <div className="flex justify-between text-lg font-bold border-t pt-2">
                 <span>Total TTC:</span>
-                <span>{totals.total.toFixed(2)} DZD</span>
+                <span>{totals.total.toFixed(2)} TND</span>
               </div>
             </div>
           </div>
@@ -325,4 +325,5 @@ export function InvoiceForm() {
     </div>
   )
 }
+
 
