@@ -76,18 +76,21 @@ export function InvoiceForm() {
   }
 
   const handleProductSelect = (index: number, productId: string) => {
-    if (!productId) return // option "Saisie manuelle"
-    const product = products.find(p => p.id === productId)
+    if (!productId) return;
+    // Convertir l'ID du produit en chaîne pour la comparaison
+    const product = products.find(p => String(p.id) === productId);
     if (product) {
-      const newItems = [...items]
+      const newItems = [...items];
       newItems[index] = {
         ...newItems[index],
         productId: product.id,
         description: product.name,
         unitPrice: product.sale_price,
-        taxRate: product.tax_rate
-      }
-      setItems(newItems)
+        taxRate: product.tax_rate  // maintenant tax_rate existe
+      };
+      setItems(newItems);
+    } else {
+      console.warn('Produit non trouvé pour ID:', productId);
     }
   }
 
@@ -322,3 +325,4 @@ export function InvoiceForm() {
     </div>
   )
 }
+
