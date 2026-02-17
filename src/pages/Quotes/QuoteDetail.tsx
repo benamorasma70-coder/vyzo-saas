@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { api } from '../../services/api'
-import { ArrowLeft, Save } from 'lucide-react'
+import { ArrowLeft} from 'lucide-react'
 
 interface QuoteItem {
   id: string
