@@ -1,285 +1,164 @@
-import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 import { api } from '../../services/api'
-import { Plus, Trash2 } from 'lucide-react'
+import { Plus, Search, Eye, FileText, Loader2 } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 
-interface Customer {
+interface Delivery {
   id: string
-  company_name: string
-  contact_name: string
+  delivery_number: string
+  delivery_date: string
+  total: number
+  status: string
+  customer_name: string
 }
 
-interface Product {
-  id: string
-  name: string
-  sale_price: number
-  tax_rate: number  // ajouté
-  unit: string
-}
-
-interface DeliveryItem {
-  productId?: string
-  description: string
-  quantity: number
-  unitPrice: number
-  taxRate?: number // optionnel, mais on peut le stocker si besoin
-}
-
-export function DeliveryForm() {
+export function Deliveries() {
+  const [deliveries, setDeliveries] = useState<Delivery[]>([])
+  const [loading, setLoading] = useState(true)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [downloadingId, setDownloadingId] = useState<string | null>(null)
   const navigate = useNavigate()
-  const [customers, setCustomers] = useState<Customer[]>([])
-  const [products, setProducts] = useState<Product[]>([])
-  const [customerId, setCustomerId] = useState('')
-  const [items, setItems] = useState<DeliveryItem[]>([
-    { description: '', quantity: 1, unitPrice: 0 }
-  ])
-  const [deliveryDate, setDeliveryDate] = useState(new Date().toISOString().split('T')[0])
-  const [notes, setNotes] = useState('')
-  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    fetchCustomers()
-    fetchProducts()
+    fetchDeliveries()
   }, [])
 
-  const fetchCustomers = async () => {
+  const fetchDeliveries = async () => {
     try {
-      const response = await api.get('/customers')
-      setCustomers(response.data)
+      const response = await api.get('/deliveries')
+      setDeliveries(response.data)
     } catch (error) {
-      console.error('Error fetching customers:', error)
-    }
-  }
-
-  const fetchProducts = async () => {
-    try {
-      const response = await api.get('/products')
-      setProducts(response.data)
-    } catch (error) {
-      console.error('Error fetching products:', error)
-    }
-  }
-
-  const addItem = () => {
-    setItems([...items, { description: '', quantity: 1, unitPrice: 0 }])
-  }
-
-  const removeItem = (index: number) => {
-    setItems(items.filter((_, i) => i !== index))
-  }
-
-  const updateItem = (index: number, field: keyof DeliveryItem, value: any) => {
-    const newItems = [...items]
-    newItems[index] = { ...newItems[index], [field]: value }
-    setItems(newItems)
-  }
-
-  const handleProductSelect = (index: number, productId: string) => {
-    if (!productId) return;
-    // Convertir l'ID du produit en chaîne pour la comparaison
-    const product = products.find(p => String(p.id) === productId);
-    if (product) {
-      const newItems = [...items];
-      newItems[index] = {
-        ...newItems[index],
-        productId: product.id,
-        description: product.name,
-        unitPrice: product.sale_price,
-        taxRate: product.tax_rate  // maintenant tax_rate existe
-      };
-      setItems(newItems);
-    } else {
-      console.warn('Produit non trouvé pour ID:', productId);
-    }
-  }
-
-  const calculateTotal = () => {
-    return items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0)
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    try {
-      await api.post('/deliveries', {
-        customerId,
-        items,
-        deliveryDate,
-        notes,
-      })
-      navigate('/deliveries')
-    } catch (error) {
-      console.error('Error creating delivery:', error)
-      alert('Erreur lors de la création du bon de livraison')
+      console.error('Error fetching deliveries:', error)
     } finally {
       setLoading(false)
     }
   }
 
-  const total = calculateTotal()
+  const handleDownloadPdf = async (id: string, number: string) => {
+    setDownloadingId(id)
+    try {
+      const response = await api.get(`/deliveries/${id}/pdf`, {
+        responseType: 'blob',
+      })
+      const url = window.URL.createObjectURL(new Blob([response.data]))
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', `BL-${number}.pdf`)
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+      window.URL.revokeObjectURL(url)
+    } catch (error) {
+      alert('Erreur lors du téléchargement du PDF')
+    } finally {
+      setDownloadingId(null)
+    }
+  }
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'delivered': return 'bg-green-100 text-green-800'
+      case 'invoiced': return 'bg-purple-100 text-purple-800'
+      default: return 'bg-yellow-100 text-yellow-800'
+    }
+  }
+
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'delivered': return 'Livré'
+      case 'invoiced': return 'Facturé'
+      default: return 'Brouillon'
+    }
+  }
+
+  const filteredDeliveries = deliveries.filter(delivery =>
+    delivery.delivery_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    delivery.customer_name?.toLowerCase().includes(searchTerm.toLowerCase())
+  )
+
+  if (loading) return <div className="text-center py-10">Chargement...</div>
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">Nouveau Bon de Livraison</h1>
-      
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Client</label>
-              <select 
-                value={customerId} 
-                onChange={(e) => setCustomerId(e.target.value)}
-                className="w-full border rounded-lg px-3 py-2"
-                required
-              >
-                <option value="">Sélectionner un client</option>
-                {customers.map(customer => (
-                  <option key={customer.id} value={customer.id}>
-                    {customer.company_name || customer.contact_name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Date de livraison</label>
-              <input 
-                type="date" 
-                value={deliveryDate}
-                onChange={(e) => setDeliveryDate(e.target.value)}
-                className="w-full border rounded-lg px-3 py-2"
-                required
-              />
-            </div>
-          </div>
+    <div>
+      <div className="flex justify-between items-center mb-6">
+        <div className="relative w-96">
+          <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Rechercher un bon de livraison..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        
+        <button
+          onClick={() => navigate('/deliveries/new')}
+          className="flex items-center px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        >
+          <Plus className="w-5 h-5 mr-2" />
+          Nouveau BL
+        </button>
+      </div>
 
-          <div className="mt-6">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="font-semibold">Articles</h3>
-              <button 
-                type="button"
-                onClick={addItem}
-                className="flex items-center text-blue-600 hover:text-blue-700"
-              >
-                <Plus className="w-4 h-4 mr-1" /> Ajouter
-              </button>
-            </div>
-
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-4 py-2 text-left">Produit / Description</th>
-                  <th className="px-4 py-2 text-right">Qté</th>
-                  <th className="px-4 py-2 text-right">P.U HT</th>
-                  <th className="px-4 py-2 text-right">Total</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                {items.map((item, index) => (
-                  <tr key={index} className="border-b">
-                    <td className="px-4 py-2">
-                      <div className="flex gap-2">
-                        <select
-                          className="w-1/3 border rounded px-2 py-1"
-                          value={item.productId || ''}
-                          onChange={(e) => handleProductSelect(index, e.target.value)}
-                        >
-                          <option value="">Saisie manuelle</option>
-                          {products.map(product => (
-                            <option key={product.id} value={product.id}>
-                              {product.name} ({product.unit})
-                            </option>
-                          ))}
-                        </select>
-                        <input 
-                          type="text"
-                          value={item.description}
-                          onChange={(e) => updateItem(index, 'description', e.target.value)}
-                          className="w-2/3 border rounded px-2 py-1"
-                          placeholder="Description"
-                          required
-                        />
-                      </div>
-                    </td>
-                    <td className="px-4 py-2">
-                      <input 
-                        type="number"
-                        value={item.quantity}
-                        onChange={(e) => updateItem(index, 'quantity', parseInt(e.target.value))}
-                        className="w-20 border rounded px-2 py-1 text-right"
-                        min="1"
-                        required
-                      />
-                    </td>
-                    <td className="px-4 py-2">
-                      <input 
-                        type="number"
-                        value={item.unitPrice}
-                        onChange={(e) => updateItem(index, 'unitPrice', parseFloat(e.target.value))}
-                        className="w-24 border rounded px-2 py-1 text-right"
-                        min="0"
-                        step="0.01"
-                        required
-                      />
-                    </td>
-                    <td className="px-4 py-2 text-right font-medium">
-                      {(item.quantity * item.unitPrice).toFixed(2)} DZD
-                    </td>
-                    <td className="px-4 py-2">
-                      {items.length > 1 && (
-                        <button 
-                          type="button"
-                          onClick={() => removeItem(index)}
-                          className="text-red-500 hover:text-red-700"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+      {filteredDeliveries.length === 0 ? (
+        <div className="bg-white rounded-lg shadow p-8 text-center text-gray-500">
+          Aucun bon de livraison trouvé
+        </div>
+      ) : (
+        <div className="bg-white rounded-lg shadow overflow-hidden">
+          <table className="w-full">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">N° BL</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Client</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Total</th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Statut</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {filteredDeliveries.map((delivery) => (
+                <tr key={delivery.id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 font-mono text-sm text-gray-600">{delivery.delivery_number}</td>
+                  <td className="px-6 py-4 font-medium text-gray-900">{delivery.customer_name}</td>
+                  <td className="px-6 py-4 text-sm text-gray-500">{delivery.delivery_date}</td>
+                  <td className="px-6 py-4 text-right font-medium">
+                    {delivery.total.toLocaleString()} DZD
+                  </td>
+                  <td className="px-6 py-4 text-center">
+                    <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(delivery.status)}`}>
+                      {getStatusLabel(delivery.status)}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <button
+                      onClick={() => navigate(`/deliveries/${delivery.id}`)}
+                      className="text-blue-600 hover:text-blue-900 mr-3"
+                      title="Voir"
+                    >
+                      <Eye className="w-5 h-5" />
+                    </button>
+                    <button
+                      onClick={() => handleDownloadPdf(delivery.id, delivery.delivery_number)}
+                      disabled={downloadingId === delivery.id}
+                      className="text-orange-600 hover:text-orange-900 disabled:opacity-50"
+                      title="Télécharger PDF"
+                    >
+                      {downloadingId === delivery.id ? (
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                      ) : (
+                        <FileText className="w-5 h-5" />
                       )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <div className="mt-6 flex justify-end">
-            <div className="w-72">
-              <div className="flex justify-between text-lg font-bold border-t pt-2">
-                <span>Total TTC:</span>
-                <span>{total.toFixed(2)} DZD</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-6">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
-            <textarea 
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              className="w-full border rounded-lg px-3 py-2 h-24"
-              placeholder="Notes particulières..."
-            />
-          </div>
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-
-        <div className="flex justify-end space-x-4">
-          <button 
-            type="button"
-            onClick={() => navigate('/deliveries')}
-            className="px-6 py-2 border rounded-lg hover:bg-gray-50"
-          >
-            Annuler
-          </button>
-          <button 
-            type="submit"
-            disabled={loading}
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
-          >
-            {loading ? 'Création...' : 'Créer le BL'}
-          </button>
-        </div>
-      </form>
+      )}
     </div>
   )
 }
