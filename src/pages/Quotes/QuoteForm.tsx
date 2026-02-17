@@ -14,7 +14,7 @@ interface Quote {
   contact_name: string
 }
 
-export function Quotes() {
+export function Quote() {
   const [quotes, setQuotes] = useState<Quote[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
