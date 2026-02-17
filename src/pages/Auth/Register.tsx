@@ -11,9 +11,9 @@ export function Register() {
     companyName: '',
     phone: '',
     rcNumber: '',
-    nif: '',
-    nis: '',
-    ai: '',
+    nif: '',           // deviendra "Registre de commerce" dans l'UI
+    // nis: '',         // supprimé
+    ai: '',            // deviendra "Matricule fiscale" dans l'UI
   })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -44,7 +44,7 @@ export function Register() {
         phone: formData.phone,
         rcNumber: formData.rcNumber,
         nif: formData.nif,
-        nis: formData.nis,
+        // nis: formData.nis,   // retiré
         ai: formData.ai,
       })
       navigate('/')
@@ -164,8 +164,9 @@ export function Register() {
               </div>
             </div>
 
+            {/* Champ NIF renommé en "Registre de commerce" */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">NIF</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Registre de commerce</label>
               <input
                 type="text"
                 name="nif"
@@ -175,19 +176,11 @@ export function Register() {
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">NIS</label>
-              <input
-                type="text"
-                name="nis"
-                value={formData.nis}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
+            {/* Champ NIS supprimé */}
 
+            {/* Champ AI renommé en "Matricule fiscale" */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Article d'Imposition (AI)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Matricule fiscale</label>
               <input
                 type="text"
                 name="ai"
