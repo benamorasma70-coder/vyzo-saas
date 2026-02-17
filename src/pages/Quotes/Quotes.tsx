@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../services/api'
-import { Plus, Search, Eye, CheckCircle, Loader2 } from 'lucide-react'
+import { Plus, Search, Eye, CheckCircle, FileText, Loader2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
 interface Quote {
@@ -19,6 +19,7 @@ export function Quotes() {
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [convertingId, setConvertingId] = useState<string | null>(null)
+  const [downloadingId, setDownloadingId] = useState<string | null>(null)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -48,6 +49,27 @@ export function Quotes() {
       alert('Erreur lors de la conversion')
     } finally {
       setConvertingId(null)
+    }
+  }
+
+  const handleDownloadPdf = async (id: string, number: string) => {
+    setDownloadingId(id)
+    try {
+      const response = await api.get(`/quotes/${id}/pdf`, {
+        responseType: 'blob',
+      })
+      const url = window.URL.createObjectURL(new Blob([response.data]))
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', `devis-${number}.pdf`)
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+      window.URL.revokeObjectURL(url)
+    } catch (error) {
+      alert('Erreur lors du téléchargement du PDF')
+    } finally {
+      setDownloadingId(null)
     }
   }
 
@@ -142,6 +164,18 @@ export function Quotes() {
                       title="Voir"
                     >
                       <Eye className="w-5 h-5" />
+                    </button>
+                    <button
+                      onClick={() => handleDownloadPdf(quote.id, quote.quote_number)}
+                      disabled={downloadingId === quote.id}
+                      className="text-orange-600 hover:text-orange-900 mr-3 disabled:opacity-50"
+                      title="Télécharger PDF"
+                    >
+                      {downloadingId === quote.id ? (
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                      ) : (
+                        <FileText className="w-5 h-5" />
+                      )}
                     </button>
                     {quote.status === 'draft' && (
                       <button
