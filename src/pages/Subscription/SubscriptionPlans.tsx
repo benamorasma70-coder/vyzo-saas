@@ -42,7 +42,7 @@ export function SubscriptionPlans() {
       await checkSubscription()
       navigate('/')
     } catch (error) {
-      alert('Erreur lors de l\'abonnement')
+      alert("Erreur lors de l'abonnement")
     } finally {
       setSubscribing(null)
     }
@@ -160,3 +160,4 @@ export function SubscriptionPlans() {
     </div>
   )
 }
+
