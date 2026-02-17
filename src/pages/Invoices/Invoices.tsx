@@ -138,10 +138,10 @@ export function Invoices() {
                 <td className="px-6 py-4 font-medium text-gray-900">{invoice.customer_name}</td>
                 <td className="px-6 py-4 text-sm text-gray-500">{invoice.issue_date}</td>
                 <td className="px-6 py-4 text-right">
-                  <div className="font-medium">{invoice.total.toLocaleString()} DZD</div>
+                  <div className="font-medium">{invoice.total.toLocaleString()} TND</div>
                   {invoice.paid_amount > 0 && (
                     <div className="text-xs text-green-600">
-                      Payé: {invoice.paid_amount.toLocaleString()} DZD
+                      Payé: {invoice.paid_amount.toLocaleString()} TND
                     </div>
                   )}
                 </td>
@@ -201,3 +201,4 @@ export function Invoices() {
     </div>
   )
 }
+
