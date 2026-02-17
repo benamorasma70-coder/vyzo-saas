@@ -29,6 +29,7 @@ export function Deliveries() {
       setDeliveries(response.data)
     } catch (error) {
       console.error('Error fetching deliveries:', error)
+      alert('Erreur lors du chargement des bons de livraison')
     } finally {
       setLoading(false)
     }
@@ -143,7 +144,7 @@ export function Deliveries() {
                     <button
                       onClick={() => handleDownloadPdf(delivery.id, delivery.delivery_number)}
                       disabled={downloadingId === delivery.id}
-                      className="text-orange-600 hover:text-orange-900 disabled:opacity-50"
+                      className="text-orange-600 hover:text-orange-900 mr-3 disabled:opacity-50"
                       title="Télécharger PDF"
                     >
                       {downloadingId === delivery.id ? (
