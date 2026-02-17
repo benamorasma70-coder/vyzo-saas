@@ -32,15 +32,18 @@ export function DeliveryDetail() {
 
   useEffect(() => {
     if (id) fetchDelivery()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id])
 
   const fetchDelivery = async () => {
     try {
+      setLoading(true)
       const response = await api.get(`/deliveries/${id}`)
       setDelivery(response.data)
     } catch (error) {
-      console.error('Error fetching delivery:', error)
+      console.error('Erreur lors du chargement du bon de livraison :', error)
       alert('Erreur lors du chargement du bon de livraison')
+      setDelivery(null)
     } finally {
       setLoading(false)
     }
@@ -52,23 +55,28 @@ export function DeliveryDetail() {
     try {
       await api.put(`/deliveries/${id}`, { status: newStatus })
       setDelivery({ ...delivery, status: newStatus })
-      alert('Statut mis à jour')
+      alert('Statut mis à jour.')
     } catch (error) {
-      console.error('Error updating status:', error)
-      alert('Erreur lors de la mise à jour')
+      console.error('Erreur lors de la mise à jour du statut :', error)
+      alert('Erreur lors de la mise à jour du statut')
     } finally {
       setUpdating(false)
     }
   }
 
-  if (loading) return <div className="text-center py-10">Chargement...</div>
+  if (loading) return <div className="text-center py-10">Chargement…</div>
   if (!delivery) return <div className="text-center py-10">Bon de livraison introuvable</div>
+
+  // Calcul du total TTC si besoin de recalculer (préfère la valeur API)
+  // const totalTTC = delivery.items.reduce((sum, item) => sum + item.quantity * item.unit_price * (1 + item.tax_rate / 100), 0);
+  // Ce code est commenté car le champ delivery.total existe déjà.
 
   return (
     <div className="max-w-4xl mx-auto p-6">
       <button
         onClick={() => navigate('/deliveries')}
         className="flex items-center text-blue-600 mb-4"
+        type="button"
       >
         <ArrowLeft className="w-4 h-4 mr-1" /> Retour aux BL
       </button>
@@ -87,7 +95,7 @@ export function DeliveryDetail() {
               <option value="delivered">Livré</option>
               <option value="invoiced">Facturé</option>
             </select>
-            {updating && <span className="text-sm text-gray-500">Mise à jour...</span>}
+            {updating && <span className="text-sm text-gray-500">Mise à jour…</span>}
           </div>
         </div>
 
@@ -132,8 +140,8 @@ export function DeliveryDetail() {
         <div className="flex justify-end">
           <div className="w-72">
             <div className="flex justify-between text-lg font-bold border-t pt-2">
-              <span>Total TTC:</span>
-              <span>{delivery.total.toFixed(2)} DZD</span>
+              <span>Total TTC :</span>
+              <span>{Number.isNaN(Number(delivery.total)) ? '—' : delivery.total.toFixed(2)} DZD</span>
             </div>
           </div>
         </div>
