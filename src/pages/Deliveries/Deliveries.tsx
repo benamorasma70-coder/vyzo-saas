@@ -49,6 +49,12 @@ export function Deliveries() {
     }
   }
 
+  // Filtrer les BL en fonction du terme de recherche
+  const filteredDeliveries = deliveries.filter(delivery =>
+    delivery.delivery_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    delivery.customer_name?.toLowerCase().includes(searchTerm.toLowerCase())
+  )
+
   if (loading) return <div>Chargement...</div>
 
   return (
@@ -87,7 +93,7 @@ export function Deliveries() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {deliveries.map((delivery) => (
+            {filteredDeliveries.map((delivery) => (
               <tr key={delivery.id} className="hover:bg-gray-50">
                 <td className="px-6 py-4 font-mono text-sm text-gray-600">{delivery.delivery_number}</td>
                 <td className="px-6 py-4 font-medium text-gray-900">{delivery.customer_name}</td>
@@ -116,4 +122,3 @@ export function Deliveries() {
     </div>
   )
 }
-
