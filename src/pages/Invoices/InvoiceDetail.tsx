@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { api } from '../../services/api'
-import { ArrowLeft, Download, Send, CheckCircle, Clock } from 'lucide-react'
+import { ArrowLeft, Download } from 'lucide-react'
 
 interface InvoiceDetail {
   id: string
