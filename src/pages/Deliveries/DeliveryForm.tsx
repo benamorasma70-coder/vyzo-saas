@@ -13,6 +13,7 @@ interface Product {
   id: string
   name: string
   sale_price: number
+  tax_rate: number  // ajouté
   unit: string
 }
 
@@ -21,7 +22,7 @@ interface DeliveryItem {
   description: string
   quantity: number
   unitPrice: number
-  taxRate?: number // optionnel
+  taxRate?: number // optionnel, mais on peut le stocker si besoin
 }
 
 export function DeliveryForm() {
@@ -84,7 +85,7 @@ export function DeliveryForm() {
         productId: product.id,
         description: product.name,
         unitPrice: product.sale_price,
-        taxRate: product.tax_rate
+        taxRate: product.tax_rate  // maintenant tax_rate existe
       };
       setItems(newItems);
     } else {
