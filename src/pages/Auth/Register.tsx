@@ -217,7 +217,3 @@ export function Register() {
     </div>
   )
 }
-
-
-
-
