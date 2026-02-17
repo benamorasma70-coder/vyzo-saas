@@ -29,7 +29,7 @@ export function SubscriptionPlans() {
       const response = await api.get('/subscriptions/plans')
       setPlans(response.data)
     } catch (error) {
-      console.error("Error fetching plans:", error)
+      console.error("Error fetching plans:", error);
     } finally {
       setLoading(false)
     }
@@ -42,7 +42,7 @@ export function SubscriptionPlans() {
       await checkSubscription()
       navigate('/')
     } catch (error) {
-      alert("Erreur lors de l'abonnement")
+      alert("Erreur lors de l'abonnement");
     } finally {
       setSubscribing(null)
     }
@@ -160,5 +160,6 @@ export function SubscriptionPlans() {
     </div>
   )
 }
+
 
 
