@@ -17,7 +17,7 @@ export function SubscriptionPlans() {
   const [plans, setPlans] = useState<Plan[]>([])
   const [loading, setLoading] = useState(true)
   const [subscribing, setSubscribing] = useState<string | null>(null)
-  const { user, subscription, checkSubscription } = useAuth()
+  const { subscription, checkSubscription } = useAuth()
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -160,6 +160,7 @@ export function SubscriptionPlans() {
     </div>
   )
 }
+
 
 
 
