@@ -12,6 +12,8 @@ import { Quotes } from './pages/Quotes/Quotes';
 import { Deliveries } from './pages/Deliveries/Deliveries';
 import { SubscriptionPlans } from './pages/Subscription/SubscriptionPlans';
 import { Layout } from './components/Layout';
+import { QuoteForm } from './pages/Quotes/QuoteForm';
+import { DeliveryForm } from './pages/Deliveries/DeliveryForm';
 
 function PrivateRoute({ children }: { children: JSX.Element }) {
   const { user } = useAuth();
@@ -33,6 +35,8 @@ function App() {
           <Route path="quotes" element={<Quotes />} />
           <Route path="deliveries" element={<Deliveries />} />
           <Route path="subscription" element={<SubscriptionPlans />} />
+          <Route path="quotes/new" element={<QuoteForm />} />
+          <Route path="deliveries/new" element={<DeliveryForm />} />
         </Route>
       </Routes>
     </BrowserRouter>
@@ -40,3 +44,4 @@ function App() {
 }
 
 export default App;
+
