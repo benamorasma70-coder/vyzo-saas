@@ -12,7 +12,7 @@ interface Delivery {
   customer_name: string
 }
 
-export function Deliveries() {
+export function DeliveryForm() {
   const [deliveries, setDeliveries] = useState<Delivery[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
