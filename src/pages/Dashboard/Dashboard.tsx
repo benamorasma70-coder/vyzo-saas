@@ -38,7 +38,7 @@ export function Dashboard() {
         <StatCard title="Clients" value={stats.totalCustomers} icon={Users} trend="+12%" color="blue" />
         <StatCard title="Produits" value={stats.totalProducts} icon={Package} trend="+5%" color="green" />
         <StatCard title="Factures (Ce mois)" value={stats.monthlyInvoices} icon={FileText} trend="+23%" color="purple" />
-        <StatCard title="Chiffre d'affaires" value={`${stats.monthlyRevenue.toLocaleString()} DZD`} icon={DollarSign} trend="+18%" color="orange" />
+        <StatCard title="Chiffre d'affaires" value={`${stats.monthlyRevenue.toLocaleString()} TND`} icon={DollarSign} trend="+18%" color="orange" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -71,7 +71,7 @@ export function Dashboard() {
                   <p className="text-sm text-gray-500">{invoice.customer_name}</p>
                 </div>
                 <div className="text-right">
-                  <p className="font-bold">{invoice.total.toLocaleString()} DZD</p>
+                  <p className="font-bold">{invoice.total.toLocaleString()} TND</p>
                   <span className={`text-xs px-2 py-1 rounded-full ${
                     invoice.status === 'paid' ? 'bg-green-100 text-green-800' :
                     invoice.status === 'overdue' ? 'bg-red-100 text-red-800' :
@@ -117,3 +117,4 @@ function StatCard({ title, value, icon: Icon, trend, color }: any) {
     </div>
   )
 }
+
