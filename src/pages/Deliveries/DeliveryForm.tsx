@@ -74,22 +74,23 @@ export function DeliveryForm() {
   }
 
   const handleProductSelect = (index: number, productId: string) => {
-    console.log('Produit sélectionné:', productId);
-    console.log('Liste des produits:', products);
-    if (!productId) return
-    const product = products.find(p => p.id === productId)
-    console.log('Produit trouvé:', product);
+    if (!productId) return;
+    // Convertir l'ID du produit en chaîne pour la comparaison
+    const product = products.find(p => String(p.id) === productId);
     if (product) {
-      const newItems = [...items]
+      const newItems = [...items];
       newItems[index] = {
         ...newItems[index],
         productId: product.id,
         description: product.name,
-        unitPrice: product.sale_price
-      }
-      setItems(newItems)
+        unitPrice: product.sale_price,
+        taxRate: product.tax_rate
+      };
+      setItems(newItems);
+    } else {
+      console.warn('Produit non trouvé pour ID:', productId);
     }
-  }
+  };
 
   const calculateTotal = () => {
     return items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0)
