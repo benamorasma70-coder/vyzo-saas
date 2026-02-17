@@ -101,7 +101,7 @@ export function Products() {
                 </td>
                 <td className="px-6 py-4 text-sm text-gray-500">{product.category || '-'}</td>
                 <td className="px-6 py-4 text-right font-medium">
-                  {product.sale_price.toLocaleString()} DZD
+                  {product.sale_price.toLocaleString()} TND
                 </td>
                 <td className="px-6 py-4 text-right">
                   <div className="flex items-center justify-end">
@@ -150,4 +150,5 @@ export function Products() {
     </div>
   )
 }
+
 
