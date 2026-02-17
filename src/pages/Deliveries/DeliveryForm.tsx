@@ -74,6 +74,8 @@ export function DeliveryForm() {
   }
 
   const handleProductSelect = (index: number, productId: string) => {
+    console.log('Produit sélectionné:', productId);
+    console.log('Liste des produits:', products);
     if (!productId) return
     const product = products.find(p => p.id === productId)
     console.log('Produit trouvé:', product);
