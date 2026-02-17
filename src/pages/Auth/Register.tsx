@@ -11,9 +11,7 @@ export function Register() {
     companyName: '',
     phone: '',
     rcNumber: '',
-    nif: '',           // deviendra "Registre de commerce" dans l'UI
-    // nis: '',         // supprimé
-    ai: '',            // deviendra "Matricule fiscale" dans l'UI
+    ai: '', // devient Matricule fiscale
   })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -43,8 +41,6 @@ export function Register() {
         companyName: formData.companyName,
         phone: formData.phone,
         rcNumber: formData.rcNumber,
-        nif: formData.nif,
-        // nis: formData.nis,   // retiré
         ai: formData.ai,
       })
       navigate('/')
@@ -151,7 +147,7 @@ export function Register() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">N° Registre de Commerce (RC)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Registre de commerce</label>
               <div className="relative">
                 <FileText className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
                 <input
@@ -164,21 +160,6 @@ export function Register() {
               </div>
             </div>
 
-            {/* Champ NIF renommé en "Registre de commerce" */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Registre de commerce</label>
-              <input
-                type="text"
-                name="nif"
-                value={formData.nif}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-
-            {/* Champ NIS supprimé */}
-
-            {/* Champ AI renommé en "Matricule fiscale" */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Matricule fiscale</label>
               <input
