@@ -150,7 +150,7 @@ export function Quotes() {
                   <td className="px-6 py-4 text-sm text-gray-500">{quote.issue_date}</td>
                   <td className="px-6 py-4 text-sm text-gray-500">{quote.expiry_date ?? '-'}</td>
                   <td className="px-6 py-4 text-right font-medium">
-                    {quote.total.toLocaleString()} DZD
+                    {quote.total.toLocaleString()} TND
                   </td>
                   <td className="px-6 py-4 text-center">
                     <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(quote.status)}`}>
@@ -201,3 +201,4 @@ export function Quotes() {
     </div>
   )
 }
+
