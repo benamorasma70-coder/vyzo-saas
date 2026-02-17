@@ -49,7 +49,7 @@ export function Register() {
       })
       navigate('/')
     } catch (err: any) {
-      setError(err.response?.data?.error || "Erreur lors de l'inscription")
+      setError(err.response?.data?.error || "Erreur lors de l'inscription");
     } finally {
       setLoading(false)
     }
@@ -217,4 +217,5 @@ export function Register() {
     </div>
   )
 }
+
 
