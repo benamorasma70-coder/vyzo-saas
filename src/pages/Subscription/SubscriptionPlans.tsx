@@ -145,7 +145,7 @@ export function SubscriptionPlans() {
                     ? 'Traitement...'
                     : plan.name === 'free'
                     ? 'Commencer gratuitement'
-                    : 'S'abonner'}
+                    : "S'abonner"}
                 </button>
               </div>
             </div>
@@ -160,6 +160,7 @@ export function SubscriptionPlans() {
     </div>
   )
 }
+
 
 
 
