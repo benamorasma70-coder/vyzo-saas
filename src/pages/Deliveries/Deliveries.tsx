@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../services/api'
-import { Plus, Search, Eye, Truck, CheckCircle } from 'lucide-react'
+import { Plus, Search, Eye } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
 interface Delivery {
@@ -116,3 +116,4 @@ export function Deliveries() {
     </div>
   )
 }
+
