@@ -22,6 +22,11 @@ function PrivateRoute({ children }: { children: JSX.Element }) {
   return user ? children : <Navigate to="/login" />;
 }
 
+function AdminRoute({ children }: { children: JSX.Element }) {
+  const { user } = useAuth();
+  return user?.is_admin ? children : <Navigate to="/" />;
+}
+
 function App() {
   return (
     <BrowserRouter>
@@ -44,6 +49,7 @@ function App() {
           <Route path="deliveries/new" element={<DeliveryForm />} />
           <Route path="deliveries/:id" element={<DeliveryDetail />} />
           <Route path="subscription" element={<SubscriptionPlans />} />
+          <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
         </Route>
       </Routes>
     </BrowserRouter>
@@ -51,3 +57,4 @@ function App() {
 }
 
 export default App;
+
