@@ -1,74 +1,74 @@
-import { useEffect, useState } from 'react'
-import { api } from '../../services/api'
-import { useAuth } from '../../context/AuthContext'
-import { Check, Star, Zap, Crown } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react';
+import { api } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
+import { Check, Star, Zap, Crown } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface Plan {
-  id: string
-  name: string
-  display_name: string
-  price_monthly: number
-  duration_months: number
-  features: string
+  id: string;
+  name: string;
+  display_name: string;
+  price_monthly: number;
+  duration_months: number;
+  features: string;
 }
 
 export function SubscriptionPlans() {
-  const [plans, setPlans] = useState<Plan[]>([])
-  const [loading, setLoading] = useState(true)
-  const [subscribing, setSubscribing] = useState<string | null>(null)
-  const { subscription, checkSubscription } = useAuth()
-  const navigate = useNavigate()
+  const [plans, setPlans] = useState<Plan[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [subscribing, setSubscribing] = useState<string | null>(null);
+  const { user, subscription, refreshUser } = useAuth(); // ← utilisation de refreshUser
+  const navigate = useNavigate();
 
   useEffect(() => {
-    fetchPlans()
-  }, [])
+    fetchPlans();
+  }, []);
 
   const fetchPlans = async () => {
     try {
-      const response = await api.get('/subscriptions/plans')
-      setPlans(response.data)
+      const response = await api.get('/subscriptions/plans');
+      setPlans(response.data);
     } catch (error) {
-      console.error("Error fetching plans:", error);
+      console.error('Error fetching plans:', error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleSubscribe = async (planId: string) => {
     setSubscribing(planId);
     try {
       await api.post('/subscriptions/subscribe', { planId });
-      await refreshUser(); // ← Utilise refreshUser au lieu de checkSubscription
+      await refreshUser(); // ← rafraîchit l'utilisateur et l'abonnement
       navigate('/');
     } catch (error) {
       alert('Erreur lors de l\'abonnement');
     } finally {
       setSubscribing(null);
     }
-  }
+  };
 
   const getPlanIcon = (name: string) => {
     switch (name) {
-      case 'free': return <Star className="w-8 h-8 text-yellow-500" />
-      case 'monthly': return <Zap className="w-8 h-8 text-blue-500" />
-      case 'semester': return <Check className="w-8 h-8 text-purple-500" />
-      case 'yearly': return <Crown className="w-8 h-8 text-orange-500" />
-      default: return <Star className="w-8 h-8 text-gray-500" />
+      case 'free': return <Star className="w-8 h-8 text-yellow-500" />;
+      case 'monthly': return <Zap className="w-8 h-8 text-blue-500" />;
+      case 'semester': return <Check className="w-8 h-8 text-purple-500" />;
+      case 'yearly': return <Crown className="w-8 h-8 text-orange-500" />;
+      default: return <Star className="w-8 h-8 text-gray-500" />;
     }
-  }
+  };
 
   const getPlanFeatures = (plan: Plan) => {
-    const features = JSON.parse(plan.features || '[]')
+    const features = JSON.parse(plan.features || '[]');
     return features.length > 0 ? features : [
       'Clients illimités',
       'Produits illimités',
       'Factures illimitées',
       'Support email',
-    ]
-  }
+    ];
+  };
 
-  if (loading) return <div>Chargement...</div>
+  if (loading) return <div>Chargement...</div>;
 
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4">
@@ -114,7 +114,7 @@ export function SubscriptionPlans() {
                       <span className="text-4xl font-bold text-gray-900">
                         {plan.price_monthly.toLocaleString()}
                       </span>
-                      <span className="text-gray-500"> TND/mois</span>
+                      <span className="text-gray-500"> DZD/mois</span>
                     </>
                   ) : (
                     <span className="text-4xl font-bold text-green-600">Gratuit</span>
@@ -145,7 +145,7 @@ export function SubscriptionPlans() {
                     ? 'Traitement...'
                     : plan.name === 'free'
                     ? 'Commencer gratuitement'
-                    : "S'abonner"}
+                    : 'S\'abonner'}
                 </button>
               </div>
             </div>
@@ -154,16 +154,9 @@ export function SubscriptionPlans() {
 
         <div className="mt-12 text-center text-gray-500 text-sm">
           <p>Tous les forfaits incluent: Sauvegarde automatique, SSL sécurisé, Mises à jour gratuites</p>
-          <p className="mt-2">Besoin d'aide ? Contactez-nous à contact@easydev.tn</p>
+          <p className="mt-2">Besoin d'aide ? Contactez-nous à support@vyzo.app</p>
         </div>
       </div>
     </div>
-  )
+  );
 }
-
-
-
-
-
-
-
