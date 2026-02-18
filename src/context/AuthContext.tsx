@@ -5,13 +5,7 @@ interface User {
   id: string;
   email: string;
   companyName: string;
-}
-
-interface User {
-  id: string;
-  email: string;
-  companyName: string;
-  is_admin?: boolean;
+  is_admin?: boolean;  // ← ajouté
 }
 
 interface Subscription {
@@ -96,5 +90,3 @@ export const useAuth = () => {
   if (!context) throw new Error('useAuth must be used within AuthProvider');
   return context;
 };
-
-
