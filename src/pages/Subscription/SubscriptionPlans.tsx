@@ -17,7 +17,7 @@ export function SubscriptionPlans() {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
   const [subscribing, setSubscribing] = useState<string | null>(null);
-  const { user, subscription, refreshUser } = useAuth(); // ← utilisation de refreshUser
+  const { subscription, refreshUser } = useAuth(); // ← user supprimé car non utilisé
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -39,7 +39,7 @@ export function SubscriptionPlans() {
     setSubscribing(planId);
     try {
       await api.post('/subscriptions/subscribe', { planId });
-      await refreshUser(); // ← rafraîchit l'utilisateur et l'abonnement
+      await refreshUser();
       navigate('/');
     } catch (error) {
       alert('Erreur lors de l\'abonnement');
