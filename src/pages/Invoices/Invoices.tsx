@@ -115,12 +115,12 @@ export function Invoices() {
     i.customer_name?.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
-  if (loading) return <div>Chargement...</div>
+  if (loading) return <div className="text-center py-10">Chargement...</div>
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
-        <div className="relative w-96">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <div className="relative w-full sm:w-96">
           <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
           <input
             type="text"
@@ -131,17 +131,17 @@ export function Invoices() {
           />
         </div>
         
-        <div className="flex space-x-2">
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
           <button
             onClick={handleExport}
             disabled={exporting}
-            className="flex items-center px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
+            className="flex items-center justify-center px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
           >
             {exporting ? 'Export...' : 'Exporter CSV'}
           </button>
           <button
             onClick={() => navigate('/invoices/new')}
-            className="flex items-center px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="flex items-center justify-center px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
             <Plus className="w-5 h-5 mr-2" />
             Nouvelle Facture
@@ -149,8 +149,8 @@ export function Invoices() {
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <table className="w-full">
+      <div className="bg-white rounded-lg shadow overflow-hidden overflow-x-auto">
+        <table className="w-full min-w-[800px]">
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">N° Facture</th>
