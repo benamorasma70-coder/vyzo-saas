@@ -7,11 +7,11 @@ interface Quote {
   id: string
   quote_number: string
   issue_date: string
-  expiry_date?: string | null
+  expiry_date: string | null
   total: number
   status: string
-  customer_name?: string | null
-  contact_name?: string | null
+  customer_name: string
+  contact_name: string | null
 }
 
 export function Quotes() {
@@ -78,6 +78,7 @@ export function Quotes() {
       case 'accepted': return 'bg-green-100 text-green-800'
       case 'sent': return 'bg-blue-100 text-blue-800'
       case 'rejected': return 'bg-red-100 text-red-800'
+      case 'expired': return 'bg-gray-100 text-gray-800'
       default: return 'bg-gray-100 text-gray-800'
     }
   }
@@ -102,8 +103,8 @@ export function Quotes() {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
-        <div className="relative w-96">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <div className="relative w-full sm:w-96">
           <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
           <input
             type="text"
@@ -113,9 +114,10 @@ export function Quotes() {
             className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
           />
         </div>
+        
         <button
           onClick={() => navigate('/quotes/new')}
-          className="flex items-center px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          className="flex items-center justify-center px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 w-full sm:w-auto"
         >
           <Plus className="w-5 h-5 mr-2" />
           Nouveau Devis
@@ -127,8 +129,8 @@ export function Quotes() {
           Aucun devis trouvé
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <table className="w-full">
+        <div className="bg-white rounded-lg shadow overflow-hidden overflow-x-auto">
+          <table className="w-full min-w-[800px]">
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">N° Devis</th>
@@ -145,12 +147,12 @@ export function Quotes() {
                 <tr key={quote.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 font-mono text-sm text-gray-600">{quote.quote_number}</td>
                   <td className="px-6 py-4">
-                    <div className="font-medium text-gray-900">{quote.customer_name ?? quote.contact_name ?? '-'}</div>
+                    <div className="font-medium text-gray-900">{quote.customer_name || quote.contact_name || '-'}</div>
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-500">{quote.issue_date}</td>
-                  <td className="px-6 py-4 text-sm text-gray-500">{quote.expiry_date ?? '-'}</td>
+                  <td className="px-6 py-4 text-sm text-gray-500">{quote.expiry_date || '-'}</td>
                   <td className="px-6 py-4 text-right font-medium">
-                    {quote.total.toLocaleString()} TND
+                    {quote.total.toLocaleString()} DZD
                   </td>
                   <td className="px-6 py-4 text-center">
                     <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(quote.status)}`}>
@@ -201,4 +203,3 @@ export function Quotes() {
     </div>
   )
 }
-
