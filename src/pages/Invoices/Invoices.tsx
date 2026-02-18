@@ -20,6 +20,7 @@ export function Invoices() {
   const [loading, setLoading] = useState(true)
   const [generatingPdf, setGeneratingPdf] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
+  const [exporting, setExporting] = useState(false)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -68,6 +69,27 @@ export function Invoices() {
     }
   }
 
+  const handleExport = async () => {
+    setExporting(true)
+    try {
+      const response = await api.get('/invoices/export', {
+        responseType: 'blob',
+      })
+      const url = window.URL.createObjectURL(new Blob([response.data]))
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', 'factures.csv')
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+      window.URL.revokeObjectURL(url)
+    } catch (error) {
+      alert('Erreur lors de l\'export')
+    } finally {
+      setExporting(false)
+    }
+  }
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'paid': return 'bg-green-100 text-green-800'
@@ -109,13 +131,22 @@ export function Invoices() {
           />
         </div>
         
-        <button
-          onClick={() => navigate('/invoices/new')}
-          className="flex items-center px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-        >
-          <Plus className="w-5 h-5 mr-2" />
-          Nouvelle Facture
-        </button>
+        <div className="flex space-x-2">
+          <button
+            onClick={handleExport}
+            disabled={exporting}
+            className="flex items-center px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
+          >
+            {exporting ? 'Export...' : 'Exporter CSV'}
+          </button>
+          <button
+            onClick={() => navigate('/invoices/new')}
+            className="flex items-center px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            <Plus className="w-5 h-5 mr-2" />
+            Nouvelle Facture
+          </button>
+        </div>
       </div>
 
       <div className="bg-white rounded-lg shadow overflow-hidden">
@@ -201,4 +232,3 @@ export function Invoices() {
     </div>
   )
 }
-
