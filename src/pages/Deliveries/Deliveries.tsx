@@ -81,8 +81,8 @@ export function Deliveries() {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
-        <div className="relative w-96">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <div className="relative w-full sm:w-96">
           <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
           <input
             type="text"
@@ -95,7 +95,7 @@ export function Deliveries() {
         
         <button
           onClick={() => navigate('/deliveries/new')}
-          className="flex items-center px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          className="flex items-center justify-center px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 w-full sm:w-auto"
         >
           <Plus className="w-5 h-5 mr-2" />
           Nouveau BL
@@ -107,8 +107,8 @@ export function Deliveries() {
           Aucun bon de livraison trouvé
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <table className="w-full">
+        <div className="bg-white rounded-lg shadow overflow-hidden overflow-x-auto">
+          <table className="w-full min-w-[800px]">
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">N° BL</th>
@@ -126,7 +126,7 @@ export function Deliveries() {
                   <td className="px-6 py-4 font-medium text-gray-900">{delivery.customer_name}</td>
                   <td className="px-6 py-4 text-sm text-gray-500">{delivery.delivery_date}</td>
                   <td className="px-6 py-4 text-right font-medium">
-                    {delivery.total.toLocaleString()} TND
+                    {delivery.total.toLocaleString()} DZD
                   </td>
                   <td className="px-6 py-4 text-center">
                     <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(delivery.status)}`}>
@@ -163,4 +163,3 @@ export function Deliveries() {
     </div>
   )
 }
-
