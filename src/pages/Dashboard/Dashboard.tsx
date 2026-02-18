@@ -1,22 +1,26 @@
-import { useEffect, useState } from 'react'
-import { useAuth } from '../../context/AuthContext'
-import { api } from '../../services/api'
-import { TrendingUp, Users, Package, FileText, DollarSign, AlertCircle } from 'lucide-react'
+import { useEffect, useState } from 'react';
+import { useAuth } from '../../context/AuthContext';
+import { api } from '../../services/api';
+import { TrendingUp, Users, Package, FileText, DollarSign, AlertCircle } from 'lucide-react';
 
 export function Dashboard() {
-  const { user, subscription } = useAuth()
-  const [stats, setStats] = useState<any>(null)
+  const { user, subscription } = useAuth();
+  const [stats, setStats] = useState<any>(null);
 
   useEffect(() => {
-    fetchDashboardData()
-  }, [])
+    fetchDashboardData();
+  }, []);
 
   const fetchDashboardData = async () => {
-    const response = await api.get('/dashboard/stats')
-    setStats(response.data)
-  }
+    try {
+      const response = await api.get('/dashboard/stats');
+      setStats(response.data);
+    } catch (error) {
+      console.error('Erreur chargement dashboard', error);
+    }
+  };
 
-  if (!stats) return <div>Chargement...</div>
+  if (!stats) return <div className="text-center py-10">Chargement...</div>;
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
@@ -35,10 +39,34 @@ export function Dashboard() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <StatCard title="Clients" value={stats.totalCustomers} icon={Users} trend="+12%" color="blue" />
-        <StatCard title="Produits" value={stats.totalProducts} icon={Package} trend="+5%" color="green" />
-        <StatCard title="Factures (Ce mois)" value={stats.monthlyInvoices} icon={FileText} trend="+23%" color="purple" />
-        <StatCard title="Chiffre d'affaires" value={`${stats.monthlyRevenue.toLocaleString()} TND`} icon={DollarSign} trend="+18%" color="orange" />
+        <StatCard
+          title="Clients"
+          value={stats.totalCustomers}
+          icon={Users}
+          trend={stats.trends.customers}
+          color="blue"
+        />
+        <StatCard
+          title="Produits"
+          value={stats.totalProducts}
+          icon={Package}
+          trend={stats.trends.products}
+          color="green"
+        />
+        <StatCard
+          title="Factures (Ce mois)"
+          value={stats.monthlyInvoices}
+          icon={FileText}
+          trend={stats.trends.invoices}
+          color="purple"
+        />
+        <StatCard
+          title="Chiffre d'affaires"
+          value={`${stats.monthlyRevenue.toLocaleString()} TND`}
+          icon={DollarSign}
+          trend={stats.trends.revenue}
+          color="orange"
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -87,7 +115,7 @@ export function Dashboard() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 function StatCard({ title, value, icon: Icon, trend, color }: any) {
@@ -96,7 +124,12 @@ function StatCard({ title, value, icon: Icon, trend, color }: any) {
     green: 'bg-green-50 text-green-600',
     purple: 'bg-purple-50 text-purple-600',
     orange: 'bg-orange-50 text-orange-600',
-  }
+  };
+
+  // Déterminer la couleur de la tendance (positif = vert, négatif = rouge)
+  const isPositive = trend.startsWith('+');
+  const trendColor = isPositive ? 'text-green-600' : trend.startsWith('-') ? 'text-red-600' : 'text-gray-600';
+  const TrendIcon = isPositive ? TrendingUp : TrendingUp; // on peut changer d'icône si on veut, mais TrendingUp reste bien
 
   return (
     <div className="bg-white rounded-lg shadow p-6">
@@ -110,11 +143,10 @@ function StatCard({ title, value, icon: Icon, trend, color }: any) {
         </div>
       </div>
       <div className="mt-4 flex items-center text-sm">
-        <TrendingUp className="w-4 h-4 text-green-500 mr-1" />
-        <span className="text-green-600 font-medium">{trend}</span>
+        <TrendIcon className={`w-4 h-4 mr-1 ${trendColor}`} />
+        <span className={`font-medium ${trendColor}`}>{trend}</span>
         <span className="text-gray-500 ml-2">vs mois dernier</span>
       </div>
     </div>
-  )
+  );
 }
-
