@@ -17,7 +17,7 @@ export function SubscriptionPlans() {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
   const [requesting, setRequesting] = useState<string | null>(null);
-  const { subscription, refreshUser } = useAuth();
+  const { subscription } = useAuth(); // ← refreshUser supprimé
   const navigate = useNavigate();
 
   useEffect(() => {
