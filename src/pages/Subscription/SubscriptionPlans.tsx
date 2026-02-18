@@ -36,15 +36,15 @@ export function SubscriptionPlans() {
   }
 
   const handleSubscribe = async (planId: string) => {
-    setSubscribing(planId)
+    setSubscribing(planId);
     try {
-      await api.post('/subscriptions/subscribe', { planId })
-      await checkSubscription()
-      navigate('/')
+      await api.post('/subscriptions/subscribe', { planId });
+      await refreshUser(); // ← Utilise refreshUser au lieu de checkSubscription
+      navigate('/');
     } catch (error) {
-      alert("Erreur lors de l'abonnement");
+      alert('Erreur lors de l\'abonnement');
     } finally {
-      setSubscribing(null)
+      setSubscribing(null);
     }
   }
 
@@ -160,6 +160,7 @@ export function SubscriptionPlans() {
     </div>
   )
 }
+
 
 
 
