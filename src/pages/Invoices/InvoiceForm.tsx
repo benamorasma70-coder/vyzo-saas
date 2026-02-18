@@ -136,44 +136,46 @@ export function InvoiceForm() {
         <div className="bg-white rounded-lg shadow p-6">
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Client</label>
-              <select 
-                value={customerId} 
-                onChange={(e) => setCustomerId(e.target.value)}
-                className="w-full border rounded-lg px-3 py-2"
-                required
-              >
-                <option value="">Sélectionner un client</option>
-                {customers.map(customer => (
-                  <option key={customer.id} value={customer.id}>
-                    {customer.company_name || customer.contact_name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Date d'émission</label>
-                <input 
-                  type="date" 
-                  value={issueDate}
-                  onChange={(e) => setIssueDate(e.target.value)}
+                <label className="block text-sm font-medium text-gray-700 mb-1">Client</label>
+                <select 
+                  value={customerId} 
+                  onChange={(e) => setCustomerId(e.target.value)}
                   className="w-full border rounded-lg px-3 py-2"
                   required
-                />
+                >
+                  <option value="">Sélectionner un client</option>
+                  {customers.map(customer => (
+                    <option key={customer.id} value={customer.id}>
+                      {customer.company_name || customer.contact_name}
+                    </option>
+                  ))}
+                </select>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Date d'échéance</label>
-                <input 
-                  type="date" 
-                  value={dueDate}
-                  onChange={(e) => setDueDate(e.target.value)}
-                  className="w-full border rounded-lg px-3 py-2"
-                  required
-                />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Date d'émission</label>
+                  <input 
+                    type="date" 
+                    value={issueDate}
+                    onChange={(e) => setIssueDate(e.target.value)}
+                    className="w-full border rounded-lg px-3 py-2"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Date d'échéance</label>
+                  <input 
+                    type="date" 
+                    value={dueDate}
+                    onChange={(e) => setDueDate(e.target.value)}
+                    className="w-full border rounded-lg px-3 py-2"
+                    required
+                  />
+                </div>
               </div>
             </div>
-          </div>
 
           <div className="mt-6">
             <div className="flex justify-between items-center mb-4">
@@ -325,5 +327,6 @@ export function InvoiceForm() {
     </div>
   )
 }
+
 
 
