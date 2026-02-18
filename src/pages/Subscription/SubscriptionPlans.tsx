@@ -40,6 +40,7 @@ export function SubscriptionPlans() {
     try {
       await api.post('/subscriptions/subscribe', { planId });
       await refreshUser();
+      console.log('Subscription after refresh:', subscription); // Vérifier dans la console
       navigate('/');
     } catch (error) {
       alert('Erreur lors de l\'abonnement');
@@ -160,3 +161,4 @@ export function SubscriptionPlans() {
     </div>
   );
 }
+
