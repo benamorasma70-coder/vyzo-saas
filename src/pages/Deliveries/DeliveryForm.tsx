@@ -123,7 +123,8 @@ export function DeliveryForm() {
       
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="bg-white rounded-lg shadow p-6">
-          <div className="grid grid-cols-2 gap-4 mb-4">
+          {/* Client et date */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Client</label>
               <select 
@@ -152,6 +153,7 @@ export function DeliveryForm() {
             </div>
           </div>
 
+          {/* Articles */}
           <div className="mt-6">
             <div className="flex justify-between items-center mb-4">
               <h3 className="font-semibold">Articles</h3>
@@ -164,93 +166,97 @@ export function DeliveryForm() {
               </button>
             </div>
 
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-4 py-2 text-left">Produit / Description</th>
-                  <th className="px-4 py-2 text-right">Qté</th>
-                  <th className="px-4 py-2 text-right">P.U HT</th>
-                  <th className="px-4 py-2 text-right">Total</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                {items.map((item, index) => (
-                  <tr key={index} className="border-b">
-                    <td className="px-4 py-2">
-                      <div className="flex gap-2">
-                        <select
-                          className="w-1/3 border rounded px-2 py-1"
-                          value={item.productId || ''}
-                          onChange={(e) => handleProductSelect(index, e.target.value)}
-                        >
-                          <option value="">Saisie manuelle</option>
-                          {products.map(product => (
-                            <option key={product.id} value={product.id}>
-                              {product.name} ({product.unit})
-                            </option>
-                          ))}
-                        </select>
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[600px]">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-4 py-2 text-left">Produit / Description</th>
+                    <th className="px-4 py-2 text-right">Qté</th>
+                    <th className="px-4 py-2 text-right">P.U HT</th>
+                    <th className="px-4 py-2 text-right">Total</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {items.map((item, index) => (
+                    <tr key={index} className="border-b">
+                      <td className="px-4 py-2">
+                        <div className="flex flex-col sm:flex-row gap-2">
+                          <select
+                            className="w-full sm:w-1/3 border rounded px-2 py-1"
+                            value={item.productId || ''}
+                            onChange={(e) => handleProductSelect(index, e.target.value)}
+                          >
+                            <option value="">Saisie manuelle</option>
+                            {products.map(product => (
+                              <option key={product.id} value={product.id}>
+                                {product.name} ({product.unit})
+                              </option>
+                            ))}
+                          </select>
+                          <input 
+                            type="text"
+                            value={item.description}
+                            onChange={(e) => updateItem(index, 'description', e.target.value)}
+                            className="w-full sm:w-2/3 border rounded px-2 py-1"
+                            placeholder="Description"
+                            required
+                          />
+                        </div>
+                      </td>
+                      <td className="px-4 py-2">
                         <input 
-                          type="text"
-                          value={item.description}
-                          onChange={(e) => updateItem(index, 'description', e.target.value)}
-                          className="w-2/3 border rounded px-2 py-1"
-                          placeholder="Description"
+                          type="number"
+                          value={item.quantity}
+                          onChange={(e) => updateItem(index, 'quantity', parseInt(e.target.value))}
+                          className="w-20 border rounded px-2 py-1 text-right"
+                          min="1"
                           required
                         />
-                      </div>
-                    </td>
-                    <td className="px-4 py-2">
-                      <input 
-                        type="number"
-                        value={item.quantity}
-                        onChange={(e) => updateItem(index, 'quantity', parseInt(e.target.value))}
-                        className="w-20 border rounded px-2 py-1 text-right"
-                        min="1"
-                        required
-                      />
-                    </td>
-                    <td className="px-4 py-2">
-                      <input 
-                        type="number"
-                        value={item.unitPrice}
-                        onChange={(e) => updateItem(index, 'unitPrice', parseFloat(e.target.value))}
-                        className="w-24 border rounded px-2 py-1 text-right"
-                        min="0"
-                        step="0.01"
-                        required
-                      />
-                    </td>
-                    <td className="px-4 py-2 text-right font-medium">
-                      {(item.quantity * item.unitPrice).toFixed(2)} TND
-                    </td>
-                    <td className="px-4 py-2">
-                      {items.length > 1 && (
-                        <button 
-                          type="button"
-                          onClick={() => removeItem(index)}
-                          className="text-red-500 hover:text-red-700"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                      </td>
+                      <td className="px-4 py-2">
+                        <input 
+                          type="number"
+                          value={item.unitPrice}
+                          onChange={(e) => updateItem(index, 'unitPrice', parseFloat(e.target.value))}
+                          className="w-24 border rounded px-2 py-1 text-right"
+                          min="0"
+                          step="0.01"
+                          required
+                        />
+                      </td>
+                      <td className="px-4 py-2 text-right font-medium">
+                        {(item.quantity * item.unitPrice).toFixed(2)} DZD
+                      </td>
+                      <td className="px-4 py-2">
+                        {items.length > 1 && (
+                          <button 
+                            type="button"
+                            onClick={() => removeItem(index)}
+                            className="text-red-500 hover:text-red-700"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
 
+          {/* Total */}
           <div className="mt-6 flex justify-end">
             <div className="w-72">
               <div className="flex justify-between text-lg font-bold border-t pt-2">
-                <span>Total TTC:</span>
-                <span>{total.toFixed(2)} TND</span>
+                <span>Total TTC :</span>
+                <span>{total.toFixed(2)} DZD</span>
               </div>
             </div>
           </div>
 
+          {/* Notes */}
           <div className="mt-6">
             <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
             <textarea 
@@ -262,6 +268,7 @@ export function DeliveryForm() {
           </div>
         </div>
 
+        {/* Boutons d'action */}
         <div className="flex justify-end space-x-4">
           <button 
             type="button"
