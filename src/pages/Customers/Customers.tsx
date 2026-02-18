@@ -137,7 +137,7 @@ export function Customers() {
 
       {isModalOpen && (
         <CustomerModal
-          customer={selectedCustomer as any}
+          customer={selectedCustomer as any} // Important: contourne la différence de types
           onClose={() => setIsModalOpen(false)}
           onSave={fetchCustomers}
         />
