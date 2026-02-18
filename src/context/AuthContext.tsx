@@ -22,7 +22,7 @@ interface AuthContextType {
   register: (data: any) => Promise<void>;
   logout: () => void;
   checkSubscription: () => Promise<void>;
-  refreshUser: () => Promise<void>; // Nouvelle méthode
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
