@@ -9,6 +9,7 @@ interface InvoiceDetail {
   issue_date: string
   due_date: string
   total: number
+  paid_amount: number
   status: string
   customer_name: string
   notes?: string
@@ -27,10 +28,17 @@ export function InvoiceDetail() {
   const [invoice, setInvoice] = useState<InvoiceDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [updating, setUpdating] = useState(false)
+  const [paymentAmount, setPaymentAmount] = useState<number>(0)
 
   useEffect(() => {
     if (id) fetchInvoice()
   }, [id])
+
+  useEffect(() => {
+    if (invoice) {
+      setPaymentAmount(invoice.paid_amount || 0)
+    }
+  }, [invoice])
 
   const fetchInvoice = async () => {
     try {
@@ -48,8 +56,14 @@ export function InvoiceDetail() {
     if (!invoice) return
     setUpdating(true)
     try {
-      await api.patch(`/invoices/${id}/status`, { status: newStatus })
-      setInvoice({ ...invoice, status: newStatus })
+      const data: any = { status: newStatus }
+      if (newStatus === 'partial') {
+        data.paidAmount = paymentAmount
+      } else if (newStatus === 'paid') {
+        data.paidAmount = invoice.total
+      }
+      await api.patch(`/invoices/${id}/status`, data)
+      setInvoice({ ...invoice, status: newStatus, paid_amount: data.paidAmount || invoice.paid_amount })
     } catch (error) {
       console.error('Error updating status:', error)
       alert('Erreur lors du changement de statut')
@@ -95,7 +109,7 @@ export function InvoiceDetail() {
             <h1 className="text-2xl font-bold">Facture {invoice.invoice_number}</h1>
             <p className="text-gray-500">Créée le {invoice.issue_date}</p>
           </div>
-          <div className="flex space-x-2">
+          <div className="flex flex-col items-end space-y-2">
             <button
               onClick={handleDownloadPdf}
               className="flex items-center px-3 py-2 border rounded-lg hover:bg-gray-50"
@@ -103,18 +117,40 @@ export function InvoiceDetail() {
               <Download className="w-4 h-4 mr-2" />
               PDF
             </button>
-            <select
-              value={invoice.status}
-              onChange={(e) => updateStatus(e.target.value)}
-              disabled={updating}
-              className="border rounded-lg px-3 py-2 bg-white"
-            >
-              <option value="draft">Brouillon</option>
-              <option value="sent">Envoyée</option>
-              <option value="paid">Payée</option>
-              <option value="overdue">En retard</option>
-              <option value="partial">Partiellement payée</option>
-            </select>
+            <div className="flex items-center space-x-2">
+              <select
+                value={invoice.status}
+                onChange={(e) => {
+                  const newStatus = e.target.value
+                  if (newStatus === 'partial' && paymentAmount <= 0) {
+                    alert('Veuillez saisir un montant payé')
+                    return
+                  }
+                  updateStatus(newStatus)
+                }}
+                disabled={updating}
+                className="border rounded-lg px-3 py-2 bg-white"
+              >
+                <option value="draft">Brouillon</option>
+                <option value="sent">Envoyée</option>
+                <option value="paid">Payée</option>
+                <option value="overdue">En retard</option>
+                <option value="partial">Partiellement payée</option>
+              </select>
+              {invoice.status === 'partial' && (
+                <input
+                  type="number"
+                  min="0"
+                  max={invoice.total}
+                  step="0.01"
+                  value={paymentAmount}
+                  onChange={(e) => setPaymentAmount(parseFloat(e.target.value))}
+                  className="border rounded-lg px-3 py-2 w-32"
+                  placeholder="Montant payé"
+                />
+              )}
+            </div>
+            {updating && <span className="text-sm text-gray-500">Mise à jour...</span>}
           </div>
         </div>
 
@@ -157,6 +193,12 @@ export function InvoiceDetail() {
               <span>Total TTC :</span>
               <span>{invoice.total.toFixed(2)} TND</span>
             </div>
+            {invoice.paid_amount > 0 && (
+              <div className="flex justify-between text-sm text-green-600">
+                <span>Payé :</span>
+                <span>{invoice.paid_amount.toFixed(2)} TND</span>
+              </div>
+            )}
           </div>
         </div>
 
