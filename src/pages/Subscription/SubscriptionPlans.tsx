@@ -16,8 +16,8 @@ interface Plan {
 export function SubscriptionPlans() {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
-  const [subscribing, setSubscribing] = useState<string | null>(null);
-  const { subscription, refreshUser } = useAuth(); // ← user supprimé car non utilisé
+  const [requesting, setRequesting] = useState<string | null>(null);
+  const { subscription, refreshUser } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -35,17 +35,16 @@ export function SubscriptionPlans() {
     }
   };
 
-  const handleSubscribe = async (planId: string) => {
-    setSubscribing(planId);
+  const handleRequest = async (planId: string) => {
+    setRequesting(planId);
     try {
-      await api.post('/subscriptions/subscribe', { planId });
-      await refreshUser();
-      console.log('Subscription after refresh:', subscription); // Vérifier dans la console
+      await api.post('/subscriptions/request', { planId });
+      alert('Demande envoyée. Vous recevrez une confirmation après validation par l\'administrateur.');
       navigate('/');
-    } catch (error) {
-      alert('Erreur lors de l\'abonnement');
+    } catch (error: any) {
+      alert(error.response?.data?.error || 'Erreur lors de la demande');
     } finally {
-      setSubscribing(null);
+      setRequesting(null);
     }
   };
 
@@ -132,8 +131,8 @@ export function SubscriptionPlans() {
                 </ul>
 
                 <button
-                  onClick={() => handleSubscribe(plan.id)}
-                  disabled={subscribing === plan.id || subscription?.plan_name === plan.name}
+                  onClick={() => handleRequest(plan.id)}
+                  disabled={requesting === plan.id || subscription?.plan_name === plan.name}
                   className={`w-full py-3 rounded-lg font-semibold transition-colors ${
                     subscription?.plan_name === plan.name
                       ? 'bg-green-100 text-green-700 cursor-default'
@@ -142,11 +141,11 @@ export function SubscriptionPlans() {
                 >
                   {subscription?.plan_name === plan.name
                     ? 'Actif'
-                    : subscribing === plan.id
+                    : requesting === plan.id
                     ? 'Traitement...'
                     : plan.name === 'free'
                     ? 'Commencer gratuitement'
-                    : 'S\'abonner'}
+                    : 'Demander'}
                 </button>
               </div>
             </div>
@@ -161,4 +160,3 @@ export function SubscriptionPlans() {
     </div>
   );
 }
-
