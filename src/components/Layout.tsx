@@ -38,6 +38,15 @@ export function Layout() {
                   {link.label}
                 </Link>
               ))}
+              {/* Lien Administration pour les admins */}
+              {user?.is_admin && (
+                <Link
+                  to="/admin"
+                  className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium"
+                >
+                  Administration
+                </Link>
+              )}
             </div>
 
             {/* Bouton menu mobile */}
@@ -77,6 +86,16 @@ export function Layout() {
                     {link.label}
                   </Link>
                 ))}
+                {/* Lien Administration pour les admins en mobile */}
+                {user?.is_admin && (
+                  <Link
+                    to="/admin"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium"
+                  >
+                    Administration
+                  </Link>
+                )}
                 <div className="border-t pt-2 mt-2">
                   <span className="block text-sm text-gray-700 px-3 py-2">{user?.companyName}</span>
                   <button
