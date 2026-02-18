@@ -51,7 +51,7 @@ export function Dashboard() {
           Bonjour, {user?.companyName}
         </h1>
         <p className="text-gray-500 mt-1">
-          Plan actuel : <span className="font-medium text-blue-600">{subscription?.display_name}</span>
+          Plan actuel : <span className="font-medium text-blue-600">{subscription?.display_name || 'Gratuit'}</span>
           {subscription?.expires_soon && (
             <span className="ml-2 text-yellow-600 text-sm">
               (Expire dans {subscription.days_remaining} jours)
