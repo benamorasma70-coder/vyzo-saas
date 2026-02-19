@@ -15,7 +15,6 @@ import {
   Tr,
   Th,
   Td,
-  VStack,
   HStack,
   Divider,
   useToast,
