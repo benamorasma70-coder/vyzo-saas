@@ -114,7 +114,7 @@ export function SubscriptionPlans() {
                       <span className="text-4xl font-bold text-gray-900">
                         {plan.price_monthly.toLocaleString()}
                       </span>
-                      <span className="text-gray-500"> DZD/mois</span>
+                      <span className="text-gray-500"> TND/mois</span>
                     </>
                   ) : (
                     <span className="text-4xl font-bold text-green-600">Gratuit</span>
@@ -154,9 +154,10 @@ export function SubscriptionPlans() {
 
         <div className="mt-12 text-center text-gray-500 text-sm">
           <p>Tous les forfaits incluent: Sauvegarde automatique, SSL sécurisé, Mises à jour gratuites</p>
-          <p className="mt-2">Besoin d'aide ? Contactez-nous à support@vyzo.app</p>
+          <p className="mt-2">Besoin d'aide ? Contactez-nous à contactt@easydev.tn</p>
         </div>
       </div>
     </div>
   );
 }
+
