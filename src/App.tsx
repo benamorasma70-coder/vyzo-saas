@@ -17,6 +17,7 @@ import { DeliveryForm } from './pages/Deliveries/DeliveryForm';
 import { DeliveryDetail } from './pages/Deliveries/DeliveryDetail';
 import { SubscriptionPlans } from './pages/Subscription/SubscriptionPlans';
 import { AdminDashboard } from './pages/Admin/AdminDashboard'; // décommentez si le fichier existe
+import { SubscriptionRequests } from './pages/Admin/SubscriptionRequests';
 
 function PrivateRoute({ children }: { children: JSX.Element }) {
   const { user } = useAuth();
@@ -51,6 +52,7 @@ function App() {
           <Route path="subscription" element={<SubscriptionPlans />} />
           {/* Route admin temporairement désactivée */}
           <Route path="admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} /> 
+          <Route path="admin" element={<AdminRoute><SubscriptionRequests /></AdminRoute>} />
         </Route>
       </Routes>
     </BrowserRouter>
@@ -58,4 +60,5 @@ function App() {
 }
 
 export default App;
+
 
