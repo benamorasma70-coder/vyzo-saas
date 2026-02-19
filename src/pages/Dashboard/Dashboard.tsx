@@ -10,8 +10,6 @@ import {
   Icon,
   Badge,
   VStack,
-  HStack,
-  Divider,
   useColorModeValue,
 } from '@chakra-ui/react';
 import { Users, Package, FileText, DollarSign, AlertCircle, TrendingUp, TrendingDown } from 'lucide-react';
