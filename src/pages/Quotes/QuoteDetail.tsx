@@ -4,21 +4,87 @@ import { api } from '../../services/api'
 import { ArrowLeft } from 'lucide-react'
 import { SHARED_STYLES } from '../../shared-styles'
 
+interface QuoteItem {
+  id: string
+  product_id: string | null
+  description: string
+  quantity: number
+  unit_price: number
+  tax_rate: number
+}
+
+interface Quote {
+  id: string
+  quote_number: string
+  issue_date: string
+  expiry_date: string | null
+  total: number
+  status: string
+  notes: string | null
+  customer_name: string
+  items: QuoteItem[]
+}
+
 export function QuoteDetail() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const [quote, setQuote] = useState<Quote | null>(null)
   const [loading, setLoading] = useState(true)
   const [updating, setUpdating] = useState(false)
+  const [loaded, setLoaded] = useState(false)
 
-  useEffect(() => { if (id) fetchQuote() }, [id])
+  useEffect(() => {
+    if (id) fetchQuote()
+  }, [id])
 
-  const fetchQuote = async () => { /* identique */ }
-  const updateStatus = async (newStatus: string) => { /* identique */ }
-  const handleConvert = async () => { /* identique */ }
+  const fetchQuote = async () => {
+    try {
+      const response = await api.get(`/quotes/${id}`)
+      setQuote(response.data)
+      setTimeout(() => setLoaded(true), 50)
+    } catch (error) {
+      console.error('Error fetching quote:', error)
+      alert('Erreur lors du chargement du devis')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const updateStatus = async (newStatus: string) => {
+    if (!quote) return
+    setUpdating(true)
+    try {
+      await api.patch(`/quotes/${id}/status`, { status: newStatus })
+      setQuote({ ...quote, status: newStatus })
+      alert('Statut mis à jour')
+    } catch (error) {
+      console.error('Error updating status:', error)
+      alert('Erreur lors de la mise à jour')
+    } finally {
+      setUpdating(false)
+    }
+  }
+
+  const handleConvert = async () => {
+    if (!confirm('Convertir ce devis en facture ?')) return
+    setUpdating(true)
+    try {
+      const response = await api.post(`/quotes/${id}/convert`)
+      navigate(`/invoices/${response.data.invoiceId}`)
+    } catch (error) {
+      console.error('Conversion error:', error)
+      alert('Erreur lors de la conversion')
+    } finally {
+      setUpdating(false)
+    }
+  }
 
   if (loading) return <LoadingScreen />
-  if (!quote) return <div className="root" style={{ textAlign: 'center', paddingTop: 50 }}>Devis introuvable</div>
+  if (!quote) return (
+    <div className="root" style={{ textAlign: 'center', paddingTop: 50 }}>
+      Devis introuvable
+    </div>
+  )
 
   return (
     <>
@@ -29,16 +95,22 @@ export function QuoteDetail() {
             <ArrowLeft size={16} /> Retour aux devis
           </button>
 
-          <div className="glass" style={{ padding: 24 }}>
+          <div className={`glass fade-up ${loaded ? 'show' : ''}`} style={{ padding: 24 }}>
             {/* En-tête */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
               <div>
-                <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: 28, fontWeight: 700 }}>Devis {quote.quote_number}</h1>
-                <p style={{ color: 'var(--muted)' }}>Créé le {new Date(quote.issue_date).toLocaleDateString('fr-FR')}</p>
+                <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: 28, fontWeight: 700 }}>
+                  Devis {quote.quote_number}
+                </h1>
+                <p style={{ color: 'var(--muted)' }}>
+                  Créé le {new Date(quote.issue_date).toLocaleDateString('fr-FR')}
+                </p>
               </div>
               <div style={{ display: 'flex', gap: 12 }}>
                 {quote.status === 'draft' && (
-                  <button onClick={handleConvert} className="btn-primary">Convertir en facture</button>
+                  <button onClick={handleConvert} className="btn-primary">
+                    Convertir en facture
+                  </button>
                 )}
                 <select
                   value={quote.status}
@@ -68,11 +140,17 @@ export function QuoteDetail() {
               <div style={{ overflowX: 'auto' }}>
                 <table className="table" style={{ minWidth: 500 }}>
                   <thead>
-                    <tr><th>Description</th><th className="right">Qté</th><th className="right">P.U HT</th><th className="right">TVA %</th><th className="right">Total</th></tr>
+                    <tr>
+                      <th>Description</th>
+                      <th className="right">Qté</th>
+                      <th className="right">P.U HT</th>
+                      <th className="right">TVA %</th>
+                      <th className="right">Total</th>
+                    </tr>
                   </thead>
                   <tbody>
-                    {quote.items.map(item => {
-                      const total = item.quantity * item.unit_price * (1 + item.tax_rate/100)
+                    {quote.items.map((item) => {
+                      const total = item.quantity * item.unit_price * (1 + item.tax_rate / 100)
                       return (
                         <tr key={item.id}>
                           <td>{item.description}</td>
@@ -107,6 +185,17 @@ export function QuoteDetail() {
             )}
           </div>
         </div>
+      </div>
+    </>
+  )
+}
+
+function LoadingScreen() {
+  return (
+    <>
+      <style>{SHARED_STYLES}</style>
+      <div style={{ minHeight: '100vh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div className="loader" />
       </div>
     </>
   )
