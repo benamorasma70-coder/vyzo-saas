@@ -3,7 +3,7 @@ import { api } from '../../services/api'
 import { useAuth } from '../../context/AuthContext'
 import { Check, Star, Zap, Crown } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import { BASE_STYLES } from './shared-styles'
+import { BASE_STYLES } from '../../shared-styles'
 
 interface Plan { id: string; name: string; display_name: string; price_monthly: number; duration_months: number; features: string }
 
@@ -162,3 +162,4 @@ function Loader() {
     </>
   )
 }
+
