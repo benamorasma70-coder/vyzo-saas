@@ -1,4 +1,3 @@
-// src/shared-styles.ts
 export const SHARED_STYLES = `
   :root {
     --bg:       #0d0f14;
@@ -63,6 +62,7 @@ export const SHARED_STYLES = `
     box-shadow: 0 0 0 3px rgba(108,141,255,.12);
   }
   .input::placeholder { color: var(--muted); }
+  .input option { background: #1e1e2e; color: #fff; }
 
   .btn-primary {
     display: inline-flex; align-items: center; gap: 8px;
@@ -76,6 +76,7 @@ export const SHARED_STYLES = `
     transition: opacity .2s, transform .15s;
   }
   .btn-primary:hover { opacity: .9; transform: translateY(-1px); }
+  .btn-primary:disabled { opacity: .5; cursor: not-allowed; }
 
   .btn-ghost {
     display: inline-flex; align-items: center; gap: 8px;
@@ -90,6 +91,7 @@ export const SHARED_STYLES = `
     transition: background .2s, border-color .2s;
   }
   .btn-ghost:hover { background: rgba(255,255,255,.10); border-color: rgba(255,255,255,.16); }
+  .btn-ghost:disabled { opacity: .5; cursor: not-allowed; }
 
   .table {
     width: 100%;
@@ -141,6 +143,7 @@ export const SHARED_STYLES = `
   .icon-btn.blue:hover  { color: var(--accent); }
   .icon-btn.green:hover { color: var(--success); }
   .icon-btn.orange:hover { color: var(--warning); }
+  .icon-btn.red:hover { color: var(--danger); }
 
   .fade-up {
     opacity: 0; transform: translateY(16px);
@@ -157,5 +160,82 @@ export const SHARED_STYLES = `
     border-top-color:#6c8dff;
     border-radius:50%;
     animation:spin .7s linear infinite;
+  }
+
+  /* Pour les modales */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    padding: 1rem;
+  }
+  .modal-content {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    max-width: 42rem;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+  }
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .modal-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+  .modal-close {
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 8px;
+    transition: all .2s;
+  }
+  .modal-close:hover {
+    background: rgba(255,255,255,.1);
+    color: var(--text);
+  }
+  .modal-body {
+    padding: 1.5rem;
+  }
+  .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding: 1.5rem;
+    border-top: 1px solid var(--border);
+  }
+
+  /* Cards (pour abonnements) */
+  .plan-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    backdrop-filter: blur(12px);
+    border-radius: 24px;
+    padding: 2rem;
+    transition: all 0.2s;
+  }
+  .plan-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(108,141,255,0.3);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+  }
+  .plan-card.active {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(108,141,255,0.2);
   }
 `;
