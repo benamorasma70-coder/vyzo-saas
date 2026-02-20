@@ -1,16 +1,8 @@
-/**
- * Dashboard moderne — thème sombre, glassmorphism, animations CSS
- * Polices : "DM Sans" (body) + "Playfair Display" (titres)
- * Ajouter dans index.html :
- *   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
- */
-
 import { useEffect, useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import { api } from '../../services/api'
 import { Users, Package, FileText, DollarSign, AlertCircle, TrendingUp, TrendingDown } from 'lucide-react'
 
-/* ─── Types ─────────────────────────────────────────────────────────────── */
 interface Stats {
   totalCustomers: number
   totalProducts: number
@@ -32,7 +24,6 @@ interface Stats {
   }
 }
 
-/* ─── Dashboard ──────────────────────────────────────────────────────────── */
 export function Dashboard() {
   const { user, subscription } = useAuth()
   const [stats, setStats] = useState<Stats | null>(null)
@@ -56,7 +47,6 @@ export function Dashboard() {
 
   return (
     <>
-      {/* ── Styles globaux injectés ── */}
       <style>{`
         :root {
           --bg:        #0d0f14;
@@ -76,9 +66,10 @@ export function Dashboard() {
           background: var(--bg);
           min-height: 100vh;
           color: var(--text);
+          position: relative;
+          z-index: 10;
         }
 
-        /* Halo décoratif en arrière-plan */
         .dash-root::before {
           content: '';
           position: fixed;
@@ -98,7 +89,6 @@ export function Dashboard() {
           z-index: 0;
         }
 
-        /* Glassmorphism card */
         .glass {
           background: var(--surface);
           border: 1px solid var(--border);
@@ -112,7 +102,6 @@ export function Dashboard() {
           box-shadow: 0 8px 40px rgba(0,0,0,.35);
         }
 
-        /* Entrée en fondu / glissement */
         .fade-up {
           opacity: 0;
           transform: translateY(20px);
@@ -129,7 +118,6 @@ export function Dashboard() {
         .delay-5 { transition-delay: .25s; }
         .delay-6 { transition-delay: .30s; }
 
-        /* Stat card — icône */
         .icon-wrap {
           border-radius: 12px;
           padding: 10px;
@@ -138,7 +126,6 @@ export function Dashboard() {
           justify-content: center;
         }
 
-        /* Pill badge abonnement */
         .plan-badge {
           display: inline-flex;
           align-items: center;
@@ -153,7 +140,6 @@ export function Dashboard() {
           letter-spacing: .3px;
         }
 
-        /* Badge statut facture */
         .status-badge {
           font-size: 11px;
           font-weight: 600;
@@ -162,7 +148,6 @@ export function Dashboard() {
           letter-spacing: .3px;
         }
 
-        /* Barre de tendance (sous les stat-cards) */
         .trend-bar {
           height: 3px;
           border-radius: 99px;
@@ -176,12 +161,21 @@ export function Dashboard() {
           border-radius: 99px;
           transition: width 1s ease;
         }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loader {
+          width: 36px; height: 36px;
+          border: 3px solid rgba(108,141,255,.2);
+          border-top-color: #6c8dff;
+          border-radius: 50%;
+          animation: spin .7s linear infinite;
+        }
       `}</style>
 
-      <div className="dash-root relative z-10">
+      <div className="dash-root">
         <div className="px-6 py-10 max-w-7xl mx-auto">
 
-          {/* ── En-tête ── */}
+          {/* En-tête */}
           <div className={`mb-10 fade-up ${loaded ? 'show' : ''}`}>
             <h1 className="text-4xl font-bold" style={{ fontFamily: "'Playfair Display', serif", letterSpacing: '-0.5px' }}>
               Bonjour,{' '}
@@ -206,7 +200,7 @@ export function Dashboard() {
             </div>
           </div>
 
-          {/* ── Stat cards ── */}
+          {/* Cartes de statistiques */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
             {[
               { title: 'Clients',          value: stats.totalCustomers,                              icon: Users,    trend: stats.trends.customers, accent: '#6c8dff', delay: 'delay-1' },
@@ -229,7 +223,6 @@ export function Dashboard() {
                   </div>
                 </div>
 
-                {/* Barre de tendance */}
                 <div className="trend-bar">
                   <div
                     className="trend-bar-fill"
@@ -253,9 +246,8 @@ export function Dashboard() {
             ))}
           </div>
 
-          {/* ── Alertes + Factures ── */}
+          {/* Alertes + Factures */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-
             {/* Alertes stock */}
             <div className={`glass p-6 fade-up delay-5 ${loaded ? 'show' : ''}`}>
               <SectionHeader label="Alertes Stock" dot="#f87171" />
@@ -343,8 +335,6 @@ export function Dashboard() {
   )
 }
 
-/* ─── Sous-composants ────────────────────────────────────────────────────── */
-
 function SectionHeader({ label, dot }: { label: string; dot: string }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -356,20 +346,8 @@ function SectionHeader({ label, dot }: { label: string; dot: string }) {
 
 function LoadingScreen() {
   return (
-    <>
-      <style>{`
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .loader {
-          width: 36px; height: 36px;
-          border: 3px solid rgba(108,141,255,.2);
-          border-top-color: #6c8dff;
-          border-radius: 50%;
-          animation: spin .7s linear infinite;
-        }
-      `}</style>
-      <div style={{ minHeight: '100vh', background: '#0d0f14', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div className="loader" />
-      </div>
-    </>
+    <div style={{ minHeight: '100vh', background: '#0d0f14', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div className="loader" />
+    </div>
   )
 }
