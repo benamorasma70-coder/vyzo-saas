@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../services/api'
 import { Check, X, RefreshCw } from 'lucide-react'
-import { BASE_STYLES } from './shared-styles'
+import { BASE_STYLES } from '../shared-styles'
 
 interface SubscriptionRequest { id: number; user_id: number; plan_name: string; display_name: string; status: string; requested_at: string; email: string; company_name: string }
 
