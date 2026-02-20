@@ -30,6 +30,7 @@ const LAYOUT_STYLES = `
     color: var(--text);
   }
 
+  /* ── Sidebar ── */
   .sidebar {
     width: 240px;
     height: 100vh;
@@ -83,7 +84,6 @@ const LAYOUT_STYLES = `
     text-decoration: none;
     border-left: 3px solid transparent;
     transition: color .2s, background .2s, border-color .2s;
-    position: relative;
   }
   .nav-link:hover {
     color: var(--text);
@@ -212,9 +212,7 @@ export function Layout() {
   return (
     <>
       <style>{LAYOUT_STYLES}</style>
-
       <div className="layout-root">
-
         <div
           className={`sidebar-overlay ${sidebarOpen ? 'visible' : ''}`}
           onClick={closeSidebar}
@@ -248,7 +246,7 @@ export function Layout() {
             >
               <CreditCard size={17} />
               Abonnement
-              {subscription && (
+              {subscription ? (
                 <span style={{
                   marginLeft: 'auto',
                   fontSize: 10, fontWeight: 700,
@@ -260,11 +258,11 @@ export function Layout() {
                 }}>
                   {subscription.display_name}
                 </span>
-              )}
+              ) : null}
             </Link>
 
-            {/* Section admin – ne s'affiche que si l'utilisateur est admin */}
-            {user?.is_admin && (
+            {/* Section Admin – affichée uniquement si l'utilisateur est admin */}
+            {user?.is_admin ? (
               <>
                 <div className="nav-section-label" style={{ marginTop: 8 }}>Admin</div>
                 <Link
@@ -276,7 +274,7 @@ export function Layout() {
                   Administration
                 </Link>
               </>
-            )}
+            ) : null}
           </nav>
 
           <div className="sidebar-footer">
@@ -304,7 +302,7 @@ export function Layout() {
             <div style={{ width: 36 }} />
           </header>
 
-          {subscription?.expires_soon && (
+          {subscription?.expires_soon ? (
             <div className="expiry-banner">
               ⚡ Votre abonnement <strong>{subscription.display_name}</strong> expire dans{' '}
               <strong>{subscription.days_remaining} jours</strong> —{' '}
@@ -312,7 +310,7 @@ export function Layout() {
                 Renouveler
               </Link>
             </div>
-          )}
+          ) : null}
 
           <main className="page-content">
             <Outlet />
