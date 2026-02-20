@@ -18,6 +18,8 @@ import { DeliveryDetail } from './pages/Deliveries/DeliveryDetail';
 import { SubscriptionPlans } from './pages/Subscription/SubscriptionPlans';
 import { AdminDashboard } from './pages/Admin/AdminDashboard'; // contient probablement les deux onglets
 // import { SubscriptionRequests } from './pages/Admin/SubscriptionRequests'; // si vous voulez une sous-route
+import { ForgotPassword } from './pages/Auth/ForgotPassword';
+import { ResetPassword } from './pages/Auth/ResetPassword';
 
 function PrivateRoute({ children }: { children: JSX.Element }) {
   const { user } = useAuth();
@@ -66,4 +68,5 @@ function App() {
 }
 
 export default App;
+
 
