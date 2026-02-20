@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { api } from '../../services/api'
 import { Plus, Search, Eye, CheckCircle, FileText, Loader2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import { BASE_STYLES, STATUS_QUOTE } from './shared-styles'
+import { BASE_STYLES, STATUS_QUOTE } from '../shared-styles'
 
 interface Quote {
   id: string; quote_number: string; issue_date: string
@@ -130,3 +130,4 @@ function Loader() {
     </>
   )
 }
+
