@@ -33,7 +33,7 @@ const LAYOUT_STYLES = `
   /* ── Sidebar ── */
   .sidebar {
     width: 240px;
-    min-height: 100vh;
+    height: 100vh;                     /* Fixe la hauteur à la fenêtre */
     background: var(--sidebar);
     border-right: 1px solid var(--border);
     display: flex;
@@ -42,6 +42,7 @@ const LAYOUT_STYLES = `
     top: 0; left: 0;
     z-index: 40;
     transition: transform .3s ease;
+    overflow: hidden;                  /* Empêche tout débordement global */
   }
   .sidebar.closed { transform: translateX(-100%); }
 
@@ -49,6 +50,7 @@ const LAYOUT_STYLES = `
   .sidebar-logo {
     padding: 28px 24px 20px;
     border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
   }
   .logo-text {
     font-family: 'Playfair Display', serif;
@@ -61,6 +63,14 @@ const LAYOUT_STYLES = `
   .logo-sub {
     font-size: 11px; font-weight: 500; letter-spacing: .8px;
     text-transform: uppercase; color: var(--muted); margin-top: 2px;
+  }
+
+  /* Zone de navigation défilante */
+  .sidebar-nav {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;                      /* Nécessaire pour que flex:1 fonctionne avec overflow */
+    padding-top: 8px;
   }
 
   /* Nav links */
@@ -91,9 +101,9 @@ const LAYOUT_STYLES = `
   }
   .nav-link svg { flex-shrink: 0; }
 
-  /* Sidebar footer */
+  /* Sidebar footer (toujours visible en bas) */
   .sidebar-footer {
-    margin-top: auto;
+    flex-shrink: 0;                     /* Empêche le footer de rétrécir */
     border-top: 1px solid var(--border);
     padding: 20px 24px;
   }
@@ -229,8 +239,8 @@ export function Layout() {
             <div className="logo-sub">Gestion commerciale</div>
           </div>
 
-          {/* Nav */}
-          <nav style={{ flex: 1, paddingTop: 8 }}>
+          {/* Navigation défilante */}
+          <nav className="sidebar-nav">
             <div className="nav-section-label">Navigation</div>
             {NAV_LINKS.map(({ to, label, icon: Icon }) => (
               <Link
@@ -284,7 +294,7 @@ export function Layout() {
             )}
           </nav>
 
-          {/* Footer */}
+          {/* Footer (toujours visible) */}
           <div className="sidebar-footer">
             <div className="user-pill">
               <div className="user-avatar">{initials}</div>
