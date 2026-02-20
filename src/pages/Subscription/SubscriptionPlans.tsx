@@ -138,7 +138,7 @@ export function SubscriptionPlans() {
 
           <div style={{ marginTop: 48, color: 'var(--muted)', fontSize: 14 }}>
             <p>Tous les forfaits incluent : sauvegarde automatique, SSL sécurisé, mises à jour gratuites</p>
-            <p style={{ marginTop: 8 }}>Besoin d'aide ? Contactez-nous à contact@vyzo.com</p>
+            <p style={{ marginTop: 8 }}>Besoin d'aide ? Contactez-nous à contact@vyzo.tn</p>
           </div>
         </div>
       </div>
@@ -156,3 +156,4 @@ function LoadingScreen() {
     </>
   );
 }
+
