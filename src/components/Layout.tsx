@@ -30,10 +30,9 @@ const LAYOUT_STYLES = `
     color: var(--text);
   }
 
-  /* ── Sidebar ── */
   .sidebar {
     width: 240px;
-    height: 100vh;                     /* Fixe la hauteur à la fenêtre */
+    height: 100vh;
     background: var(--sidebar);
     border-right: 1px solid var(--border);
     display: flex;
@@ -42,11 +41,10 @@ const LAYOUT_STYLES = `
     top: 0; left: 0;
     z-index: 40;
     transition: transform .3s ease;
-    overflow: hidden;                  /* Empêche tout débordement global */
+    overflow: hidden;
   }
   .sidebar.closed { transform: translateX(-100%); }
 
-  /* Logo */
   .sidebar-logo {
     padding: 28px 24px 20px;
     border-bottom: 1px solid var(--border);
@@ -65,15 +63,13 @@ const LAYOUT_STYLES = `
     text-transform: uppercase; color: var(--muted); margin-top: 2px;
   }
 
-  /* Zone de navigation défilante */
   .sidebar-nav {
     flex: 1;
     overflow-y: auto;
-    min-height: 0;                      /* Nécessaire pour que flex:1 fonctionne avec overflow */
+    min-height: 0;
     padding-top: 8px;
   }
 
-  /* Nav links */
   .nav-section-label {
     font-size: 10px; font-weight: 700; letter-spacing: 1.2px;
     text-transform: uppercase; color: var(--muted);
@@ -101,9 +97,8 @@ const LAYOUT_STYLES = `
   }
   .nav-link svg { flex-shrink: 0; }
 
-  /* Sidebar footer (toujours visible en bas) */
   .sidebar-footer {
-    flex-shrink: 0;                     /* Empêche le footer de rétrécir */
+    flex-shrink: 0;
     border-top: 1px solid var(--border);
     padding: 20px 24px;
   }
@@ -137,7 +132,6 @@ const LAYOUT_STYLES = `
   }
   .logout-btn:hover { background: rgba(248,113,113,.15); }
 
-  /* ── Main content ── */
   .main-wrapper {
     flex: 1;
     margin-left: 240px;
@@ -147,7 +141,6 @@ const LAYOUT_STYLES = `
   }
   .main-wrapper.full { margin-left: 0; }
 
-  /* Topbar (mobile only) */
   .topbar {
     display: none;
     align-items: center; justify-content: space-between;
@@ -164,7 +157,6 @@ const LAYOUT_STYLES = `
   }
   .hamburger:hover { background: rgba(255,255,255,.12); }
 
-  /* Mobile overlay */
   .sidebar-overlay {
     display: none;
     position: fixed; inset: 0; z-index: 35;
@@ -173,7 +165,6 @@ const LAYOUT_STYLES = `
   }
   .sidebar-overlay.visible { display: block; }
 
-  /* Subscription expiry banner */
   .expiry-banner {
     margin: 16px 20px 0;
     padding: 10px 16px;
@@ -188,7 +179,6 @@ const LAYOUT_STYLES = `
     flex: 1;
   }
 
-  /* Responsive */
   @media (max-width: 768px) {
     .sidebar { transform: translateX(-100%); }
     .sidebar.open { transform: translateX(0); }
@@ -225,21 +215,17 @@ export function Layout() {
 
       <div className="layout-root">
 
-        {/* ── Sidebar overlay (mobile) ── */}
         <div
           className={`sidebar-overlay ${sidebarOpen ? 'visible' : ''}`}
           onClick={closeSidebar}
         />
 
-        {/* ── Sidebar ── */}
         <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
-          {/* Logo */}
           <div className="sidebar-logo">
             <div className="logo-text">VYZO</div>
             <div className="logo-sub">Gestion commerciale</div>
           </div>
 
-          {/* Navigation défilante */}
           <nav className="sidebar-nav">
             <div className="nav-section-label">Navigation</div>
             {NAV_LINKS.map(({ to, label, icon: Icon }) => (
@@ -254,7 +240,6 @@ export function Layout() {
               </Link>
             ))}
 
-            {/* Abonnement */}
             <div className="nav-section-label" style={{ marginTop: 8 }}>Compte</div>
             <Link
               to="/subscription"
@@ -278,7 +263,7 @@ export function Layout() {
               )}
             </Link>
 
-            {/* Admin */}
+            {/* Section admin – ne s'affiche que si l'utilisateur est admin */}
             {user?.is_admin && (
               <>
                 <div className="nav-section-label" style={{ marginTop: 8 }}>Admin</div>
@@ -294,7 +279,6 @@ export function Layout() {
             )}
           </nav>
 
-          {/* Footer (toujours visible) */}
           <div className="sidebar-footer">
             <div className="user-pill">
               <div className="user-avatar">{initials}</div>
@@ -309,10 +293,7 @@ export function Layout() {
           </div>
         </aside>
 
-        {/* ── Main ── */}
         <div className="main-wrapper">
-
-          {/* Topbar mobile */}
           <header className="topbar">
             <button className="hamburger" onClick={() => setSidebarOpen(v => !v)}>
               {sidebarOpen ? <X size={19} /> : <Menu size={19} />}
@@ -320,10 +301,9 @@ export function Layout() {
             <span style={{ fontFamily: "'Playfair Display',serif", fontSize: 20, fontWeight: 700, background: 'linear-gradient(90deg,var(--accent),var(--accent2))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
               VYZO
             </span>
-            <div style={{ width: 36 }} /> {/* spacer */}
+            <div style={{ width: 36 }} />
           </header>
 
-          {/* Expiry warning */}
           {subscription?.expires_soon && (
             <div className="expiry-banner">
               ⚡ Votre abonnement <strong>{subscription.display_name}</strong> expire dans{' '}
@@ -334,7 +314,6 @@ export function Layout() {
             </div>
           )}
 
-          {/* Page content */}
           <main className="page-content">
             <Outlet />
           </main>
