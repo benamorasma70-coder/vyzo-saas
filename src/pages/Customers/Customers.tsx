@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../services/api'
 import { Plus, Search, Edit2, Trash2, Phone, Mail } from 'lucide-react'
-import { BASE_STYLES } from './shared-styles'
+import { BASE_STYLES } from '../../shared-styles'
 import { CustomerModal } from './CustomerModal'
 
 interface Customer { id: string; company_name: string; contact_name: string; email: string; phone: string; city: string; nif: string }
@@ -103,3 +103,4 @@ function Loader() {
     </>
   )
 }
+
