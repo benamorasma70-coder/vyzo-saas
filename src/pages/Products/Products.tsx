@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../services/api'
 import { Plus, Search, Edit2, Trash2, AlertTriangle } from 'lucide-react'
-import { BASE_STYLES } from './shared-styles'
+import { BASE_STYLES } from '../../shared-styles'
 import { ProductModal } from './ProductModal'
 
 interface Product { id: string; reference: string; name: string; category: string; sale_price: number; stock_quantity: number; min_stock: number; unit: string }
@@ -106,3 +106,4 @@ function Loader() {
     </>
   )
 }
+
