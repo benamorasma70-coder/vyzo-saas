@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { api } from '../services/api';
+import { api } from '../../services/api';
+import { SHARED_STYLES } from '../../shared-styles';
 
 export function ResetPassword() {
   const [searchParams] = useSearchParams();
@@ -9,27 +10,54 @@ export function ResetPassword() {
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password !== confirm) {
       setError('Les mots de passe ne correspondent pas');
       return;
     }
     try {
-      await api.post('/auth/reset-password', { token, newPassword: password });
-      navigate('/login', { state: { message: 'Mot de passe mis à jour. Connectez-vous.' } });
-    } catch (err) {
+      const res = await api.post('/auth/reset-password', { token, newPassword: password });
+      setMessage(res.data.message);
+      setTimeout(() => navigate('/login'), 3000);
+    } catch (err: any) {
       setError(err.response?.data?.error || 'Une erreur est survenue');
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input type="password" placeholder="Nouveau mot de passe" value={password} onChange={(e) => setPassword(e.target.value)} required />
-      <input type="password" placeholder="Confirmer" value={confirm} onChange={(e) => setConfirm(e.target.value)} required />
-      {error && <p style={{color: 'red'}}>{error}</p>}
-      <button type="submit">Réinitialiser</button>
-    </form>
+    <>
+      <style>{SHARED_STYLES}</style>
+      <div className="root">
+        <div className="glass" style={{ maxWidth: 400, margin: '50px auto', padding: 32 }}>
+          <h1>Nouveau mot de passe</h1>
+          {message && <p style={{ color: 'green' }}>{message}</p>}
+          {error && <p style={{ color: 'red' }}>{error}</p>}
+          {token ? (
+            <form onSubmit={handleSubmit}>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Nouveau mot de passe"
+                required
+              />
+              <input
+                type="password"
+                value={confirm}
+                onChange={(e) => setConfirm(e.target.value)}
+                placeholder="Confirmer"
+                required
+              />
+              <button type="submit">Réinitialiser</button>
+            </form>
+          ) : (
+            <p>Lien invalide ou expiré.</p>
+          )}
+        </div>
+      </div>
+    </>
   );
 }
