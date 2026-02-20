@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../../services/api'
 import { Plus, Trash2, ArrowLeft } from 'lucide-react'
-import { BASE_STYLES } from './shared-styles'
+import { BASE_STYLES } from './src/shared-styles'
 
 interface Customer { id: string; company_name: string; contact_name: string }
 interface Product  { id: string; name: string; sale_price: number; tax_rate: number; unit: string }
