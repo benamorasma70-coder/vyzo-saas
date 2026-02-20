@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react'
 import { api } from '../../services/api'
 import { Plus, Search, Eye, FileText, Loader2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import { BASE_STYLES, STATUS_DELIVERY } from './shared-styles'
+import { BASE_STYLES, STATUS_DELIVERY } from '../../shared-styles'
 
 interface Delivery { id: string; delivery_number: string; delivery_date: string; total: number; status: string; customer_name: string }
 
@@ -107,3 +107,4 @@ function Loader() {
     </>
   )
 }
+
