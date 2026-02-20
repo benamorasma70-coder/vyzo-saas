@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { api } from '../../services/api'
 import { X } from 'lucide-react'
-import { BASE_STYLES } from './shared-styles'
+import { BASE_STYLES } from '../../shared-styles'
 
 interface Product {
   id?: string; reference: string; name: string; description?: string; category?: string
@@ -115,3 +115,4 @@ export function ProductModal({ product, onClose, onSave }: Props) {
     </>
   )
 }
+
