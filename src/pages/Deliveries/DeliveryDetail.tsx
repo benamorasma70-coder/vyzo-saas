@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { api } from '../../services/api'
 import { ArrowLeft } from 'lucide-react'
-import { BASE_STYLES, STATUS_DELIVERY } from './shared-styles'
+import { BASE_STYLES, STATUS_DELIVERY } from '../../shared-styles'
 
 interface DeliveryItem { id: string; product_id: string|null; description: string; quantity: number; unit_price: number; tax_rate: number }
 interface Delivery { id: string; delivery_number: string; delivery_date: string; total: number; status: string; notes: string|null; customer_name: string; items: DeliveryItem[] }
