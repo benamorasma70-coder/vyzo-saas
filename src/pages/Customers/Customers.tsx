@@ -1,147 +1,105 @@
+// ═══════════════ Customers.tsx ═══════════════
 import { useEffect, useState } from 'react'
 import { api } from '../../services/api'
 import { Plus, Search, Edit2, Trash2, Phone, Mail } from 'lucide-react'
+import { BASE_STYLES } from './shared-styles'
 import { CustomerModal } from './CustomerModal'
 
-interface Customer {
-  id: string
-  company_name: string
-  contact_name: string
-  email: string
-  phone: string
-  city: string
-  nif: string
-}
+interface Customer { id: string; company_name: string; contact_name: string; email: string; phone: string; city: string; nif: string }
 
 export function Customers() {
-  const [customers, setCustomers] = useState<Customer[]>([])
-  const [loading, setLoading] = useState(true)
+  const [customers, setCustomers]   = useState<Customer[]>([])
+  const [loading, setLoading]       = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isModalOpen, setIsModalOpen]       = useState(false)
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null)
+  const [loaded, setLoaded] = useState(false)
 
-  useEffect(() => {
-    fetchCustomers()
-  }, [])
+  useEffect(() => { fetchCustomers() }, [])
 
   const fetchCustomers = async () => {
-    try {
-      const response = await api.get('/customers')
-      setCustomers(response.data)
-    } catch (error) {
-      console.error('Error fetching customers:', error)
-    } finally {
-      setLoading(false)
-    }
+    try { const r = await api.get('/customers'); setCustomers(r.data); setTimeout(() => setLoaded(true), 50) }
+    catch { console.error('Error fetching customers') }
+    finally { setLoading(false) }
   }
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Êtes-vous sûr de vouloir supprimer ce client ?')) return
-    try {
-      await api.delete(`/customers/${id}`)
-      fetchCustomers()
-    } catch (error) {
-      alert('Impossible de supprimer ce client (des factures existent probablement)')
-    }
+    if (!confirm('Supprimer ce client ?')) return
+    try { await api.delete(`/customers/${id}`); fetchCustomers() }
+    catch { alert('Impossible de supprimer ce client (des factures existent probablement)') }
   }
 
-  const filteredCustomers = customers.filter(c => 
+  const filtered = customers.filter(c =>
     c.contact_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     c.company_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     c.email?.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
-  if (loading) return <div className="text-center py-10">Chargement...</div>
+  if (loading) return <Loader />
 
   return (
-    <div>
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <div className="relative w-full sm:w-96">
-          <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Rechercher un client..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-          />
+    <>
+      <style>{BASE_STYLES}</style>
+      <div className="page-root relative z-10">
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+
+          <div className={`flex flex-wrap justify-between items-center gap-4 mb-8 fade-up ${loaded ? 'show' : ''}`}>
+            <div>
+              <h1 style={{ fontFamily: "'Playfair Display',serif", fontSize: 32, fontWeight: 700 }}>Clients</h1>
+              <p style={{ color: 'var(--muted)', fontSize: 14, marginTop: 4 }}>{filtered.length} client{filtered.length !== 1 ? 's' : ''}</p>
+            </div>
+            <div className="flex flex-wrap items-center gap-3">
+              <div style={{ position: 'relative' }}>
+                <Search size={15} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)' }} />
+                <input className="f-input" style={{ paddingLeft: 36, width: 240 }} placeholder="Rechercher..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
+              </div>
+              <button className="btn-primary" onClick={() => { setSelectedCustomer(null); setIsModalOpen(true) }}><Plus size={16} /> Nouveau Client</button>
+            </div>
+          </div>
+
+          <div className={`glass fade-up d1 ${loaded ? 'show' : ''}`} style={{ overflow: 'hidden' }}>
+            <div style={{ overflowX: 'auto' }}>
+              <table className="data-table">
+                <thead><tr><th>Client</th><th>Contact</th><th>Ville</th><th>NIF</th><th className="right">Actions</th></tr></thead>
+                <tbody>
+                  {filtered.length === 0 && <tr><td colSpan={5} style={{ textAlign: 'center', padding: '48px 20px', color: 'var(--muted)' }}>Aucun client trouvé</td></tr>}
+                  {filtered.map(c => (
+                    <tr key={c.id}>
+                      <td style={{ fontWeight: 600 }}>{c.company_name || c.contact_name}</td>
+                      <td>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--muted)' }}>
+                            <Mail size={12} style={{ flexShrink: 0 }} /><span style={{ maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.email || '-'}</span>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--muted)' }}>
+                            <Phone size={12} style={{ flexShrink: 0 }} /><span>{c.phone || '-'}</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td style={{ color: 'var(--muted)', fontSize: 13 }}>{c.city || '-'}</td>
+                      <td style={{ color: 'var(--muted)', fontSize: 13 }}>{c.nif || '-'}</td>
+                      <td className="right">
+                        <button className="icon-btn blue" onClick={() => { setSelectedCustomer(c); setIsModalOpen(true) }}><Edit2 size={16} /></button>
+                        <button className="icon-btn red" onClick={() => handleDelete(c.id)}><Trash2 size={16} /></button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
-        
-        <button
-          onClick={() => {
-            setSelectedCustomer(null)
-            setIsModalOpen(true)
-          }}
-          className="flex items-center justify-center px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 w-full sm:w-auto"
-        >
-          <Plus className="w-5 h-5 mr-2" />
-          Nouveau Client
-        </button>
       </div>
+      {isModalOpen && <CustomerModal customer={selectedCustomer as any} onClose={() => setIsModalOpen(false)} onSave={fetchCustomers} />}
+    </>
+  )
+}
 
-      <div className="bg-white rounded-lg shadow overflow-hidden overflow-x-auto">
-        <table className="w-full min-w-[800px]">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Client</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Contact</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ville</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">NIF</th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200">
-            {filteredCustomers.map((customer) => (
-              <tr key={customer.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4">
-                  <div className="font-medium text-gray-900">
-                    {customer.company_name || customer.contact_name}
-                  </div>
-                </td>
-                <td className="px-6 py-4">
-                  <div className="text-sm text-gray-500">
-                    <div className="flex items-center mb-1">
-                      <Mail className="w-4 h-4 mr-2 flex-shrink-0" />
-                      <span className="truncate">{customer.email || '-'}</span>
-                    </div>
-                    <div className="flex items-center">
-                      <Phone className="w-4 h-4 mr-2 flex-shrink-0" />
-                      <span>{customer.phone || '-'}</span>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-6 py-4 text-sm text-gray-500">{customer.city || '-'}</td>
-                <td className="px-6 py-4 text-sm text-gray-500">{customer.nif || '-'}</td>
-                <td className="px-6 py-4 text-right">
-                  <button
-                    onClick={() => {
-                      setSelectedCustomer(customer)
-                      setIsModalOpen(true)
-                    }}
-                    className="text-blue-600 hover:text-blue-900 mr-3"
-                  >
-                    <Edit2 className="w-5 h-5" />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(customer.id)}
-                    className="text-red-600 hover:text-red-900"
-                  >
-                    <Trash2 className="w-5 h-5" />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {isModalOpen && (
-        <CustomerModal
-          customer={selectedCustomer as any} // Important: contourne la différence de types
-          onClose={() => setIsModalOpen(false)}
-          onSave={fetchCustomers}
-        />
-      )}
-    </div>
+function Loader() {
+  return (
+    <>
+      <style>{`.loader{width:36px;height:36px;border:3px solid rgba(108,141,255,.2);border-top-color:#6c8dff;border-radius:50%;animation:spin .7s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+      <div style={{ minHeight: '100vh', background: '#0d0f14', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><div className="loader" /></div>
+    </>
   )
 }
