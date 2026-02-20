@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { api } from '../../services/api'
 import { ArrowLeft } from 'lucide-react'
-import { BASE_STYLES, STATUS_QUOTE } from './shared-styles'
+import { BASE_STYLES, STATUS_QUOTE } from '../shared-styles'
 
 interface QuoteItem { id: string; product_id: string|null; description: string; quantity: number; unit_price: number; tax_rate: number }
 interface Quote { id: string; quote_number: string; issue_date: string; expiry_date: string|null; total: number; status: string; notes: string|null; customer_name: string; items: QuoteItem[] }
