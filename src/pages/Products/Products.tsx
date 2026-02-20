@@ -1,153 +1,108 @@
+// ═══════════════ Products.tsx ═══════════════
 import { useEffect, useState } from 'react'
 import { api } from '../../services/api'
 import { Plus, Search, Edit2, Trash2, AlertTriangle } from 'lucide-react'
+import { BASE_STYLES } from './shared-styles'
 import { ProductModal } from './ProductModal'
 
-interface Product {
-  id: string
-  reference: string
-  name: string
-  category: string
-  sale_price: number
-  stock_quantity: number
-  min_stock: number
-  unit: string
-}
+interface Product { id: string; reference: string; name: string; category: string; sale_price: number; stock_quantity: number; min_stock: number; unit: string }
 
 export function Products() {
-  const [products, setProducts] = useState<Product[]>([])
-  const [loading, setLoading] = useState(true)
+  const [products, setProducts]     = useState<Product[]>([])
+  const [loading, setLoading]       = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isModalOpen, setIsModalOpen]     = useState(false)
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
+  const [loaded, setLoaded] = useState(false)
 
-  useEffect(() => {
-    fetchProducts()
-  }, [])
+  useEffect(() => { fetchProducts() }, [])
 
   const fetchProducts = async () => {
-    try {
-      const response = await api.get('/products')
-      setProducts(response.data)
-    } catch (error) {
-      console.error('Error fetching products:', error)
-    } finally {
-      setLoading(false)
-    }
+    try { const r = await api.get('/products'); setProducts(r.data); setTimeout(() => setLoaded(true), 50) }
+    catch { console.error('Error fetching products') }
+    finally { setLoading(false) }
   }
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Êtes-vous sûr de vouloir supprimer ce produit ?')) return
-    try {
-      await api.delete(`/products/${id}`)
-      fetchProducts()
-    } catch (error) {
-      alert('Erreur lors de la suppression')
-    }
+    if (!confirm('Supprimer ce produit ?')) return
+    try { await api.delete(`/products/${id}`); fetchProducts() }
+    catch { alert('Erreur lors de la suppression') }
   }
 
-  const filteredProducts = products.filter(p => 
+  const filtered = products.filter(p =>
     p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     p.reference.toLowerCase().includes(searchTerm.toLowerCase()) ||
     p.category?.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
-  if (loading) return <div className="text-center py-10">Chargement...</div>
+  if (loading) return <Loader />
 
   return (
-    <div>
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <div className="relative w-full sm:w-96">
-          <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Rechercher un produit..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-          />
+    <>
+      <style>{BASE_STYLES}</style>
+      <div className="page-root relative z-10">
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+
+          <div className={`flex flex-wrap justify-between items-center gap-4 mb-8 fade-up ${loaded ? 'show' : ''}`}>
+            <div>
+              <h1 style={{ fontFamily: "'Playfair Display',serif", fontSize: 32, fontWeight: 700 }}>Produits</h1>
+              <p style={{ color: 'var(--muted)', fontSize: 14, marginTop: 4 }}>{filtered.length} produit{filtered.length !== 1 ? 's' : ''}</p>
+            </div>
+            <div className="flex flex-wrap items-center gap-3">
+              <div style={{ position: 'relative' }}>
+                <Search size={15} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)' }} />
+                <input className="f-input" style={{ paddingLeft: 36, width: 240 }} placeholder="Rechercher..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
+              </div>
+              <button className="btn-primary" onClick={() => { setSelectedProduct(null); setIsModalOpen(true) }}><Plus size={16} /> Nouveau Produit</button>
+            </div>
+          </div>
+
+          <div className={`glass fade-up d1 ${loaded ? 'show' : ''}`} style={{ overflow: 'hidden' }}>
+            <div style={{ overflowX: 'auto' }}>
+              <table className="data-table">
+                <thead><tr>
+                  <th>Référence</th><th>Nom</th><th>Catégorie</th>
+                  <th className="right">Prix HT</th><th className="right">Stock</th><th className="right">Actions</th>
+                </tr></thead>
+                <tbody>
+                  {filtered.length === 0 && <tr><td colSpan={6} style={{ textAlign: 'center', padding: '48px 20px', color: 'var(--muted)' }}>Aucun produit trouvé</td></tr>}
+                  {filtered.map(p => {
+                    const lowStock = p.stock_quantity <= p.min_stock && p.min_stock > 0
+                    return (
+                      <tr key={p.id}>
+                        <td><span className="ref-badge">{p.reference}</span></td>
+                        <td style={{ fontWeight: 500 }}>{p.name}</td>
+                        <td style={{ color: 'var(--muted)', fontSize: 13 }}>{p.category || '-'}</td>
+                        <td className="right" style={{ fontWeight: 600 }}>{p.sale_price.toLocaleString()} TND</td>
+                        <td className="right">
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6 }}>
+                            <span style={{ fontWeight: 600, color: lowStock ? 'var(--danger)' : 'var(--text)' }}>{p.stock_quantity} {p.unit}</span>
+                            {lowStock && <AlertTriangle size={14} style={{ color: 'var(--danger)' }} />}
+                          </div>
+                        </td>
+                        <td className="right">
+                          <button className="icon-btn blue" onClick={() => { setSelectedProduct(p); setIsModalOpen(true) }}><Edit2 size={16} /></button>
+                          <button className="icon-btn red" onClick={() => handleDelete(p.id)}><Trash2 size={16} /></button>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
-        
-        <button
-          onClick={() => {
-            setSelectedProduct(null)
-            setIsModalOpen(true)
-          }}
-          className="flex items-center justify-center px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 w-full sm:w-auto"
-        >
-          <Plus className="w-5 h-5 mr-2" />
-          Nouveau Produit
-        </button>
       </div>
-
-      <div className="bg-white rounded-lg shadow overflow-hidden overflow-x-auto">
-        <table className="w-full min-w-[800px]">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Référence</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nom</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Catégorie</th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Prix</th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Stock</th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200">
-            {filteredProducts.map((product) => (
-              <tr key={product.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 font-mono text-sm text-gray-600">{product.reference}</td>
-                <td className="px-6 py-4">
-                  <div className="font-medium text-gray-900">{product.name}</div>
-                </td>
-                <td className="px-6 py-4 text-sm text-gray-500">{product.category || '-'}</td>
-                <td className="px-6 py-4 text-right font-medium">
-                  {product.sale_price.toLocaleString()} TND
-                </td>
-                <td className="px-6 py-4 text-right">
-                  <div className="flex items-center justify-end">
-                    <span className={`font-medium ${
-                      product.stock_quantity <= product.min_stock && product.min_stock > 0
-                        ? 'text-red-600'
-                        : 'text-gray-900'
-                    }`}>
-                      {product.stock_quantity} {product.unit}
-                    </span>
-                    {product.stock_quantity <= product.min_stock && product.min_stock > 0 && (
-                      <AlertTriangle className="w-4 h-4 text-red-500 ml-2" />
-                    )}
-                  </div>
-                </td>
-                <td className="px-6 py-4 text-right">
-                  <button
-                    onClick={() => {
-                      setSelectedProduct(product)
-                      setIsModalOpen(true)
-                    }}
-                    className="text-blue-600 hover:text-blue-900 mr-3"
-                  >
-                    <Edit2 className="w-5 h-5" />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(product.id)}
-                    className="text-red-600 hover:text-red-900"
-                  >
-                    <Trash2 className="w-5 h-5" />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {isModalOpen && (
-        <ProductModal
-          product={selectedProduct as any}
-          onClose={() => setIsModalOpen(false)}
-          onSave={fetchProducts}
-        />
-      )}
-    </div>
+      {isModalOpen && <ProductModal product={selectedProduct as any} onClose={() => setIsModalOpen(false)} onSave={fetchProducts} />}
+    </>
   )
 }
 
+function Loader() {
+  return (
+    <>
+      <style>{`.loader{width:36px;height:36px;border:3px solid rgba(108,141,255,.2);border-top-color:#6c8dff;border-radius:50%;animation:spin .7s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+      <div style={{ minHeight: '100vh', background: '#0d0f14', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><div className="loader" /></div>
+    </>
+  )
+}
