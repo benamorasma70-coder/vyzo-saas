@@ -2,16 +2,12 @@ import { useEffect, useState } from 'react'
 import { api } from '../../services/api'
 import { Plus, Search, Eye, CheckCircle, FileText, Loader2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import { BASE_STYLES, STATUS_QUOTE } from './shared-styles'
 
 interface Quote {
-  id: string
-  quote_number: string
-  issue_date: string
-  expiry_date: string | null
-  total: number
-  status: string
-  customer_name: string
-  contact_name: string | null
+  id: string; quote_number: string; issue_date: string
+  expiry_date: string | null; total: number; status: string
+  customer_name: string; contact_name: string | null
 }
 
 export function Quotes() {
@@ -20,186 +16,117 @@ export function Quotes() {
   const [searchTerm, setSearchTerm] = useState('')
   const [convertingId, setConvertingId] = useState<string | null>(null)
   const [downloadingId, setDownloadingId] = useState<string | null>(null)
+  const [loaded, setLoaded] = useState(false)
   const navigate = useNavigate()
 
-  useEffect(() => {
-    fetchQuotes()
-  }, [])
+  useEffect(() => { fetchQuotes() }, [])
 
   const fetchQuotes = async () => {
     try {
-      const response = await api.get('/quotes')
-      setQuotes(response.data)
-    } catch (error) {
-      console.error('Error fetching quotes:', error)
-      alert('Erreur lors du chargement des devis')
-    } finally {
-      setLoading(false)
-    }
+      const r = await api.get('/quotes'); setQuotes(r.data)
+      setTimeout(() => setLoaded(true), 50)
+    } catch { alert('Erreur lors du chargement des devis') }
+    finally { setLoading(false) }
   }
 
   const handleConvert = async (id: string) => {
     if (!confirm('Convertir ce devis en facture ?')) return
     setConvertingId(id)
-    try {
-      const response = await api.post(`/quotes/${id}/convert`)
-      navigate(`/invoices/${response.data.invoiceId}`)
-    } catch (error) {
-      console.error('Conversion error:', error)
-      alert('Erreur lors de la conversion')
-    } finally {
-      setConvertingId(null)
-    }
+    try { const r = await api.post(`/quotes/${id}/convert`); navigate(`/invoices/${r.data.invoiceId}`) }
+    catch { alert('Erreur lors de la conversion') }
+    finally { setConvertingId(null) }
   }
 
   const handleDownloadPdf = async (id: string, number: string) => {
     setDownloadingId(id)
     try {
-      const response = await api.get(`/quotes/${id}/pdf`, {
-        responseType: 'blob',
-      })
-      const url = window.URL.createObjectURL(new Blob([response.data]))
-      const link = document.createElement('a')
-      link.href = url
-      link.setAttribute('download', `devis-${number}.pdf`)
-      document.body.appendChild(link)
-      link.click()
-      link.remove()
+      const r = await api.get(`/quotes/${id}/pdf`, { responseType: 'blob' })
+      const url = window.URL.createObjectURL(new Blob([r.data]))
+      const a = document.createElement('a'); a.href = url
+      a.setAttribute('download', `devis-${number}.pdf`)
+      document.body.appendChild(a); a.click(); a.remove()
       window.URL.revokeObjectURL(url)
-    } catch (error) {
-      alert('Erreur lors du téléchargement du PDF')
-    } finally {
-      setDownloadingId(null)
-    }
+    } catch { alert('Erreur lors du téléchargement du PDF') }
+    finally { setDownloadingId(null) }
   }
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'accepted': return 'bg-green-100 text-green-800'
-      case 'sent': return 'bg-blue-100 text-blue-800'
-      case 'rejected': return 'bg-red-100 text-red-800'
-      case 'expired': return 'bg-gray-100 text-gray-800'
-      default: return 'bg-gray-100 text-gray-800'
-    }
-  }
-
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case 'accepted': return 'Accepté'
-      case 'sent': return 'Envoyé'
-      case 'rejected': return 'Refusé'
-      case 'expired': return 'Expiré'
-      default: return 'Brouillon'
-    }
-  }
-
-  const filteredQuotes = quotes.filter(q => 
+  const filtered = quotes.filter(q =>
     q.quote_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (q.customer_name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
     (q.contact_name?.toLowerCase() || '').includes(searchTerm.toLowerCase())
   )
 
-  if (loading) return <div className="text-center py-10">Chargement...</div>
+  if (loading) return <Loader />
 
   return (
-    <div>
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <div className="relative w-full sm:w-96">
-          <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Rechercher un devis..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-        
-        <button
-          onClick={() => navigate('/quotes/new')}
-          className="flex items-center justify-center px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 w-full sm:w-auto"
-        >
-          <Plus className="w-5 h-5 mr-2" />
-          Nouveau Devis
-        </button>
-      </div>
+    <>
+      <style>{BASE_STYLES}</style>
+      <div className="page-root relative z-10">
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
 
-      {filteredQuotes.length === 0 ? (
-        <div className="bg-white rounded-lg shadow p-8 text-center text-gray-500">
-          Aucun devis trouvé
+          <div className={`flex flex-wrap justify-between items-center gap-4 mb-8 fade-up ${loaded ? 'show' : ''}`}>
+            <div>
+              <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: 32, fontWeight: 700 }}>Devis</h1>
+              <p style={{ color: 'var(--muted)', fontSize: 14, marginTop: 4 }}>{filtered.length} devis</p>
+            </div>
+            <div className="flex flex-wrap items-center gap-3">
+              <div style={{ position: 'relative' }}>
+                <Search size={15} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)' }} />
+                <input className="f-input" style={{ paddingLeft: 36, width: 240 }} placeholder="Rechercher..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
+              </div>
+              <button className="btn-primary" onClick={() => navigate('/quotes/new')}><Plus size={16} /> Nouveau Devis</button>
+            </div>
+          </div>
+
+          <div className={`glass fade-up d1 ${loaded ? 'show' : ''}`} style={{ overflow: 'hidden' }}>
+            <div style={{ overflowX: 'auto' }}>
+              <table className="data-table">
+                <thead><tr>
+                  <th>N° Devis</th><th>Client</th><th>Date</th>
+                  <th>Expiration</th><th className="right">Total</th>
+                  <th className="center">Statut</th><th className="right">Actions</th>
+                </tr></thead>
+                <tbody>
+                  {filtered.length === 0 && <tr><td colSpan={7} style={{ textAlign: 'center', padding: '48px 20px', color: 'var(--muted)' }}>Aucun devis trouvé</td></tr>}
+                  {filtered.map(q => {
+                    const s = STATUS_QUOTE[q.status] ?? STATUS_QUOTE.draft
+                    return (
+                      <tr key={q.id}>
+                        <td><span className="ref-badge">{q.quote_number}</span></td>
+                        <td style={{ fontWeight: 500 }}>{q.customer_name || q.contact_name || '-'}</td>
+                        <td style={{ color: 'var(--muted)', fontSize: 13 }}>{new Date(q.issue_date).toLocaleDateString('fr-FR')}</td>
+                        <td style={{ color: 'var(--muted)', fontSize: 13 }}>{q.expiry_date ? new Date(q.expiry_date).toLocaleDateString('fr-FR') : '-'}</td>
+                        <td className="right" style={{ fontWeight: 700, fontFamily: "'Playfair Display',serif" }}>{q.total.toLocaleString()} DZD</td>
+                        <td className="center"><span className="status-pill" style={{ color: s.color, background: s.bg }}>{s.label}</span></td>
+                        <td className="right">
+                          <button className="icon-btn blue" title="Voir" onClick={() => navigate(`/quotes/${q.id}`)}><Eye size={16} /></button>
+                          <button className="icon-btn orange" title="Télécharger PDF" onClick={() => handleDownloadPdf(q.id, q.quote_number)} disabled={downloadingId === q.id}>
+                            {downloadingId === q.id ? <Loader2 size={16} className="spin" /> : <FileText size={16} />}
+                          </button>
+                          {q.status === 'draft' && (
+                            <button className="icon-btn green" title="Convertir en facture" onClick={() => handleConvert(q.id)} disabled={convertingId === q.id}>
+                              {convertingId === q.id ? <Loader2 size={16} className="spin" /> : <CheckCircle size={16} />}
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
-      ) : (
-        <div className="bg-white rounded-lg shadow overflow-hidden overflow-x-auto">
-          <table className="w-full min-w-[800px]">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">N° Devis</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Client</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Expiration</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Total</th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Statut</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {filteredQuotes.map((quote) => (
-                <tr key={quote.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 font-mono text-sm text-gray-600">{quote.quote_number}</td>
-                  <td className="px-6 py-4">
-                    <div className="font-medium text-gray-900">{quote.customer_name || quote.contact_name || '-'}</div>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-500">{quote.issue_date}</td>
-                  <td className="px-6 py-4 text-sm text-gray-500">{quote.expiry_date || '-'}</td>
-                  <td className="px-6 py-4 text-right font-medium">
-                    {quote.total.toLocaleString()} DZD
-                  </td>
-                  <td className="px-6 py-4 text-center">
-                    <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(quote.status)}`}>
-                      {getStatusLabel(quote.status)}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <button
-                      onClick={() => navigate(`/quotes/${quote.id}`)}
-                      className="text-blue-600 hover:text-blue-900 mr-3"
-                      title="Voir"
-                    >
-                      <Eye className="w-5 h-5" />
-                    </button>
-                    <button
-                      onClick={() => handleDownloadPdf(quote.id, quote.quote_number)}
-                      disabled={downloadingId === quote.id}
-                      className="text-orange-600 hover:text-orange-900 mr-3 disabled:opacity-50"
-                      title="Télécharger PDF"
-                    >
-                      {downloadingId === quote.id ? (
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                      ) : (
-                        <FileText className="w-5 h-5" />
-                      )}
-                    </button>
-                    {quote.status === 'draft' && (
-                      <button
-                        onClick={() => handleConvert(quote.id)}
-                        disabled={convertingId === quote.id}
-                        className="text-green-600 hover:text-green-900 mr-3 disabled:opacity-50"
-                        title="Convertir en facture"
-                      >
-                        {convertingId === quote.id ? (
-                          <Loader2 className="w-5 h-5 animate-spin" />
-                        ) : (
-                          <CheckCircle className="w-5 h-5" />
-                        )}
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </div>
+      </div>
+    </>
+  )
+}
+
+function Loader() {
+  return (
+    <>
+      <style>{`.loader{width:36px;height:36px;border:3px solid rgba(108,141,255,.2);border-top-color:#6c8dff;border-radius:50%;animation:spin .7s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+      <div style={{ minHeight: '100vh', background: '#0d0f14', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><div className="loader" /></div>
+    </>
   )
 }
