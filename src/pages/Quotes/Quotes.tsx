@@ -2,7 +2,18 @@ import { useEffect, useState } from 'react'
 import { api } from '../../services/api'
 import { Plus, Search, Eye, CheckCircle, FileText, Loader2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import { SHARED_STYLES } from '../../shared-styles'  // si centralisé
+import { SHARED_STYLES } from '../../shared-styles'
+
+interface Quote {
+  id: string
+  quote_number: string
+  issue_date: string
+  expiry_date: string | null
+  total: number
+  status: string
+  customer_name: string
+  contact_name: string | null
+}
 
 const STATUS_QUOTE: Record<string, { label: string; color: string; bg: string }> = {
   draft:    { label: 'Brouillon', color: '#9ca3af', bg: 'rgba(156,163,175,.12)' },
@@ -22,7 +33,9 @@ export function Quotes() {
   const [loaded, setLoaded] = useState(false)
   const navigate = useNavigate()
 
-  useEffect(() => { fetchQuotes() }, [])
+  useEffect(() => {
+    fetchQuotes()
+  }, [])
 
   const fetchQuotes = async () => {
     try {
@@ -69,7 +82,8 @@ export function Quotes() {
 
   const filtered = quotes.filter(q =>
     q.quote_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (q.customer_name?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+    (q.customer_name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (q.contact_name?.toLowerCase() || '').includes(searchTerm.toLowerCase())
   )
 
   if (loading) return <LoadingScreen />
@@ -79,15 +93,13 @@ export function Quotes() {
       <style>{SHARED_STYLES}</style>
       <div className="root">
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-
           {/* Header */}
           <div className={`fade-up ${loaded ? 'show' : ''}`} style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
             <div>
-              <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: 32, fontWeight: 700, letterSpacing: '-0.5px' }}>Devis</h1>
+              <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: 32, fontWeight: 700 }}>Devis</h1>
               <p style={{ color: 'var(--muted)', fontSize: 14, marginTop: 4 }}>{filtered.length} devis</p>
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.75rem' }}>
-              {/* Recherche */}
               <div style={{ position: 'relative' }}>
                 <Search size={15} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)' }} />
                 <input
@@ -147,11 +159,21 @@ export function Quotes() {
                           <button className="icon-btn blue" title="Voir" onClick={() => navigate(`/quotes/${q.id}`)}>
                             <Eye size={16} />
                           </button>
-                          <button className="icon-btn orange" title="Télécharger PDF" onClick={() => handleDownloadPdf(q.id, q.quote_number)} disabled={downloadingId === q.id}>
+                          <button
+                            className="icon-btn orange"
+                            title="Télécharger PDF"
+                            onClick={() => handleDownloadPdf(q.id, q.quote_number)}
+                            disabled={downloadingId === q.id}
+                          >
                             {downloadingId === q.id ? <Loader2 size={16} className="spin" /> : <FileText size={16} />}
                           </button>
                           {q.status === 'draft' && (
-                            <button className="icon-btn green" title="Convertir en facture" onClick={() => handleConvert(q.id)} disabled={convertingId === q.id}>
+                            <button
+                              className="icon-btn green"
+                              title="Convertir en facture"
+                              onClick={() => handleConvert(q.id)}
+                              disabled={convertingId === q.id}
+                            >
                               {convertingId === q.id ? <Loader2 size={16} className="spin" /> : <CheckCircle size={16} />}
                             </button>
                           )}
