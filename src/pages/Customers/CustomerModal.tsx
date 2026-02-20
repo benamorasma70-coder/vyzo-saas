@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { api } from '../../services/api'
 import { X } from 'lucide-react'
-import { BASE_STYLES } from './shared-styles'
+import { BASE_STYLES } from '../../shared-styles'
 
 interface Customer { id?: string; companyName?: string; contactName: string; email?: string; phone?: string; address?: string; city?: string; rcNumber?: string; nif?: string; nis?: string; ai?: string }
 interface Props { customer: Customer | null; onClose: () => void; onSave: () => void }
@@ -86,3 +86,4 @@ export function CustomerModal({ customer, onClose, onSave }: Props) {
     </>
   )
 }
+
