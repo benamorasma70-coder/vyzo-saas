@@ -3,191 +3,117 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { Mail, Lock, Building, Phone, FileText, Loader2 } from 'lucide-react'
 
+const AUTH_STYLES = `
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@600;700&display=swap');
+  :root { --accent:#6c8dff; --accent2:#a78bfa; --border:rgba(255,255,255,0.08); --muted:#6b7280; --danger:#f87171; }
+  .auth-root {
+    font-family:'DM Sans',sans-serif; min-height:100vh; background:#0d0f14;
+    display:flex; align-items:center; justify-content:center; padding:24px;
+    position:relative; overflow:hidden;
+  }
+  .auth-root::before { content:'';position:fixed;top:-250px;left:-250px;width:700px;height:700px;background:radial-gradient(circle,rgba(108,141,255,.12) 0%,transparent 70%);pointer-events:none; }
+  .auth-root::after  { content:'';position:fixed;bottom:-200px;right:-200px;width:600px;height:600px;background:radial-gradient(circle,rgba(167,139,250,.10) 0%,transparent 70%);pointer-events:none; }
+  .auth-card {
+    position:relative; z-index:1;
+    background:rgba(255,255,255,.045); border:1px solid rgba(255,255,255,.10);
+    backdrop-filter:blur(24px); border-radius:24px; padding:48px 40px;
+    width:100%; max-width:680px; box-shadow:0 32px 80px rgba(0,0,0,.5);
+  }
+  .auth-input {
+    width:100%; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.10);
+    border-radius:12px; color:#e8eaf0; padding:12px 14px 12px 42px;
+    font-family:'DM Sans',sans-serif; font-size:14px;
+    outline:none; transition:border-color .2s,box-shadow .2s; box-sizing:border-box;
+  }
+  .auth-input.no-icon { padding-left:14px; }
+  .auth-input:focus { border-color:rgba(108,141,255,.5);box-shadow:0 0 0 3px rgba(108,141,255,.12); }
+  .auth-input::placeholder { color:#6b7280; }
+  .auth-btn {
+    width:100%; padding:13px;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    color:#fff; border:none; border-radius:12px;
+    font-family:'DM Sans',sans-serif; font-size:15px; font-weight:600;
+    cursor:pointer; transition:opacity .2s,transform .15s;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+  }
+  .auth-btn:disabled { opacity:.5; cursor:not-allowed; }
+  .auth-btn:not(:disabled):hover { opacity:.9; transform:translateY(-1px); }
+  .field-wrap { position:relative; }
+  .field-icon { position:absolute;left:13px;top:50%;transform:translateY(-50%);color:#6b7280;pointer-events:none; }
+  .auth-label { display:block;font-size:11px;font-weight:600;letter-spacing:.7px;text-transform:uppercase;color:#6b7280;margin-bottom:8px; }
+  .auth-err { padding:12px 16px;background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.25);border-radius:10px;color:#f87171;font-size:13px;margin-bottom:20px; }
+  .auth-link { color:var(--accent);text-decoration:none;font-weight:600; }
+  .auth-link:hover { text-decoration:underline; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+`
+
 export function Register() {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    confirmPassword: '',
-    companyName: '',
-    phone: '',
-    rcNumber: '',
-    ai: '', // devient Matricule fiscale
-  })
-  const [error, setError] = useState('')
+  const [formData, setFormData] = useState({ email: '', password: '', confirmPassword: '', companyName: '', phone: '', rcNumber: '', ai: '' })
+  const [error, setError]   = useState('')
   const [loading, setLoading] = useState(false)
   const { register } = useAuth()
-  const navigate = useNavigate()
+  const navigate     = useNavigate()
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError('')
-
-    if (formData.password !== formData.confirmPassword) {
-      setError('Les mots de passe ne correspondent pas')
-      return
-    }
-
-    if (formData.password.length < 8) {
-      setError('Le mot de passe doit contenir au moins 8 caractères')
-      return
-    }
-
+    e.preventDefault(); setError('')
+    if (formData.password !== formData.confirmPassword) { setError('Les mots de passe ne correspondent pas'); return }
+    if (formData.password.length < 8) { setError('Le mot de passe doit contenir au moins 8 caractères'); return }
     setLoading(true)
-
-    try {
-      await register({
-        email: formData.email,
-        password: formData.password,
-        companyName: formData.companyName,
-        phone: formData.phone,
-        rcNumber: formData.rcNumber,
-        ai: formData.ai,
-      })
-      navigate('/')
-    } catch (err: any) {
-      setError(err.response?.data?.error || "Erreur lors de l'inscription");
-    } finally {
-      setLoading(false)
-    }
+    try { await register({ email: formData.email, password: formData.password, companyName: formData.companyName, phone: formData.phone, rcNumber: formData.rcNumber, ai: formData.ai }); navigate('/') }
+    catch (err: any) { setError(err.response?.data?.error || "Erreur lors de l'inscription") }
+    finally { setLoading(false) }
   }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value })
-  }
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, [e.target.name]: e.target.value })
+
+  const Field = ({ label, name, type = 'text', required = false, icon: Icon }: any) => (
+    <div>
+      <label className="auth-label">{label}{required ? ' *' : ''}</label>
+      {Icon ? (
+        <div className="field-wrap">
+          <Icon size={16} className="field-icon" />
+          <input type={type} name={name} value={(formData as any)[name]} onChange={handleChange} className="auth-input" required={required} />
+        </div>
+      ) : (
+        <input type={type} name={name} value={(formData as any)[name]} onChange={handleChange} className="auth-input no-icon" required={required} />
+      )}
+    </div>
+  )
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl p-8">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-blue-600 mb-2">VYZO</h1>
-          <p className="text-gray-500">Créez votre compte gratuitement</p>
-          <p className="text-sm text-green-600 mt-2">1 mois gratuit inclus !</p>
+    <>
+      <style>{AUTH_STYLES}</style>
+      <div className="auth-root">
+        <div className="auth-card">
+          <div style={{ textAlign: 'center', marginBottom: 36 }}>
+            <h1 style={{ fontFamily: "'Playfair Display',serif", fontSize: 36, fontWeight: 700, background: 'linear-gradient(90deg,#6c8dff,#a78bfa)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginBottom: 8 }}>VYZO</h1>
+            <p style={{ color: '#6b7280', fontSize: 14 }}>Créez votre compte gratuitement</p>
+            <p style={{ color: '#34d399', fontSize: 13, marginTop: 6, fontWeight: 500 }}>✦ 1 mois gratuit inclus !</p>
+          </div>
+
+          {error && <div className="auth-err">{error}</div>}
+
+          <form onSubmit={handleSubmit}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <Field label="Email" name="email" type="email" required icon={Mail} />
+              <Field label="Nom de l'entreprise" name="companyName" required icon={Building} />
+              <Field label="Mot de passe" name="password" type="password" required icon={Lock} />
+              <Field label="Confirmer le mot de passe" name="confirmPassword" type="password" required icon={Lock} />
+              <Field label="Téléphone" name="phone" type="tel" icon={Phone} />
+              <Field label="Registre de commerce" name="rcNumber" icon={FileText} />
+              <Field label="Matricule fiscale" name="ai" />
+            </div>
+
+            <button type="submit" className="auth-btn" disabled={loading} style={{ marginTop: 28 }}>
+              {loading ? <Loader2 size={18} style={{ animation: 'spin .7s linear infinite' }} /> : 'Créer mon compte'}
+            </button>
+          </form>
+
+          <p style={{ marginTop: 24, textAlign: 'center', fontSize: 13, color: '#6b7280' }}>
+            Déjà un compte ?{' '}<Link to="/login" className="auth-link">Se connecter</Link>
+          </p>
         </div>
-
-        {error && (
-          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
-            {error}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Email *</label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Nom de l'entreprise *</label>
-              <div className="relative">
-                <Building className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-                <input
-                  type="text"
-                  name="companyName"
-                  value={formData.companyName}
-                  onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Mot de passe *</label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-                <input
-                  type="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Confirmer le mot de passe *</label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-                <input
-                  type="password"
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Téléphone</label>
-              <div className="relative">
-                <Phone className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-                <input
-                  type="tel"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Registre de commerce</label>
-              <div className="relative">
-                <FileText className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-                <input
-                  type="text"
-                  name="rcNumber"
-                  value={formData.rcNumber}
-                  onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Matricule fiscale</label>
-              <input
-                type="text"
-                name="ai"
-                value={formData.ai}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-200 transition-all disabled:opacity-50 flex items-center justify-center"
-          >
-            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Créer mon compte'}
-          </button>
-        </form>
-
-        <p className="mt-6 text-center text-sm text-gray-600">
-          Déjà un compte ?{' '}
-          <Link to="/login" className="text-blue-600 hover:text-blue-700 font-medium">
-            Se connecter
-          </Link>
-        </p>
       </div>
-    </div>
+    </>
   )
 }
