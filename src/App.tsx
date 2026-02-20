@@ -16,8 +16,8 @@ import { Deliveries } from './pages/Deliveries/Deliveries';
 import { DeliveryForm } from './pages/Deliveries/DeliveryForm';
 import { DeliveryDetail } from './pages/Deliveries/DeliveryDetail';
 import { SubscriptionPlans } from './pages/Subscription/SubscriptionPlans';
-import { AdminDashboard } from './pages/Admin/AdminDashboard'; // décommentez si le fichier existe
-import { SubscriptionRequests } from './pages/Admin/SubscriptionRequests';
+import { AdminDashboard } from './pages/Admin/AdminDashboard'; // contient probablement les deux onglets
+// import { SubscriptionRequests } from './pages/Admin/SubscriptionRequests'; // si vous voulez une sous-route
 
 function PrivateRoute({ children }: { children: JSX.Element }) {
   const { user } = useAuth();
@@ -50,9 +50,13 @@ function App() {
           <Route path="deliveries/new" element={<DeliveryForm />} />
           <Route path="deliveries/:id" element={<DeliveryDetail />} />
           <Route path="subscription" element={<SubscriptionPlans />} />
-          {/* Route admin temporairement désactivée */}
-          <Route path="admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} /> 
-          <Route path="admin" element={<AdminRoute><SubscriptionRequests /></AdminRoute>} />
+          {/* Une seule route admin */}
+          <Route path="admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+          {/* Si vous voulez une sous-route pour les demandes, utilisez plutôt : */}
+          {/* <Route path="admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
+               <Route index element={<AdminDashboard />} />
+               <Route path="requests" element={<SubscriptionRequests />} />
+             </Route> */}
         </Route>
       </Routes>
     </BrowserRouter>
@@ -60,5 +64,3 @@ function App() {
 }
 
 export default App;
-
-
