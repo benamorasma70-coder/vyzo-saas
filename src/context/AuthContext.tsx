@@ -5,7 +5,7 @@ interface User {
   id: string;
   email: string;
   companyName: string;
-  is_admin?: boolean;  // ← ajouté
+  is_admin?: boolean;
 }
 
 interface Subscription {
@@ -34,9 +34,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    if (token) {
-      refreshUser();
-    }
+    if (token) refreshUser();
   }, []);
 
   const refreshUser = async () => {
