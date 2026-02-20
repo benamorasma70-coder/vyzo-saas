@@ -18,9 +18,10 @@ export function ForgotPassword() {
 
     try {
       const response = await api.post('/auth/forgot-password', { email });
-      setMessage(response.data.message); // Message neutre de type "Si cet email existe..."
+      // Le backend renvoie un message neutre (sécurité)
+      setMessage(response.data.message);
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Une erreur est survenue');
+      setError(err.response?.data?.error || 'Une erreur est survenue. Veuillez réessayer.');
     } finally {
       setLoading(false);
     }
