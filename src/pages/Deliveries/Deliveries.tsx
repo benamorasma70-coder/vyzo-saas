@@ -1,165 +1,109 @@
+// ═══════════════════════════════════════════════════════
+// Deliveries.tsx
+// ═══════════════════════════════════════════════════════
 import { useEffect, useState } from 'react'
 import { api } from '../../services/api'
 import { Plus, Search, Eye, FileText, Loader2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import { BASE_STYLES, STATUS_DELIVERY } from './shared-styles'
 
-interface Delivery {
-  id: string
-  delivery_number: string
-  delivery_date: string
-  total: number
-  status: string
-  customer_name: string
-}
+interface Delivery { id: string; delivery_number: string; delivery_date: string; total: number; status: string; customer_name: string }
 
 export function Deliveries() {
   const [deliveries, setDeliveries] = useState<Delivery[]>([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading]       = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [downloadingId, setDownloadingId] = useState<string | null>(null)
+  const [loaded, setLoaded]         = useState(false)
   const navigate = useNavigate()
 
-  useEffect(() => {
-    fetchDeliveries()
-  }, [])
+  useEffect(() => { fetchDeliveries() }, [])
 
   const fetchDeliveries = async () => {
-    try {
-      const response = await api.get('/deliveries')
-      setDeliveries(response.data)
-    } catch (error) {
-      console.error('Error fetching deliveries:', error)
-      alert('Erreur lors du chargement des bons de livraison')
-    } finally {
-      setLoading(false)
-    }
+    try { const r = await api.get('/deliveries'); setDeliveries(r.data); setTimeout(() => setLoaded(true), 50) }
+    catch { alert('Erreur lors du chargement des bons de livraison') }
+    finally { setLoading(false) }
   }
 
   const handleDownloadPdf = async (id: string, number: string) => {
     setDownloadingId(id)
     try {
-      const response = await api.get(`/deliveries/${id}/pdf`, {
-        responseType: 'blob',
-      })
-      const url = window.URL.createObjectURL(new Blob([response.data]))
-      const link = document.createElement('a')
-      link.href = url
-      link.setAttribute('download', `BL-${number}.pdf`)
-      document.body.appendChild(link)
-      link.click()
-      link.remove()
-      window.URL.revokeObjectURL(url)
-    } catch (error) {
-      alert('Erreur lors du téléchargement du PDF')
-    } finally {
-      setDownloadingId(null)
-    }
+      const r = await api.get(`/deliveries/${id}/pdf`, { responseType: 'blob' })
+      const url = window.URL.createObjectURL(new Blob([r.data]))
+      const a = document.createElement('a'); a.href = url; a.setAttribute('download', `BL-${number}.pdf`)
+      document.body.appendChild(a); a.click(); a.remove(); window.URL.revokeObjectURL(url)
+    } catch { alert('Erreur lors du téléchargement du PDF') }
+    finally { setDownloadingId(null) }
   }
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'delivered': return 'bg-green-100 text-green-800'
-      case 'invoiced': return 'bg-purple-100 text-purple-800'
-      default: return 'bg-yellow-100 text-yellow-800'
-    }
-  }
-
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case 'delivered': return 'Livré'
-      case 'invoiced': return 'Facturé'
-      default: return 'Brouillon'
-    }
-  }
-
-  const filteredDeliveries = deliveries.filter(delivery =>
-    delivery.delivery_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    delivery.customer_name?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filtered = deliveries.filter(d =>
+    d.delivery_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    d.customer_name?.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
-  if (loading) return <div className="text-center py-10">Chargement...</div>
+  if (loading) return <Loader />
 
   return (
-    <div>
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <div className="relative w-full sm:w-96">
-          <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Rechercher un bon de livraison..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-        
-        <button
-          onClick={() => navigate('/deliveries/new')}
-          className="flex items-center justify-center px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 w-full sm:w-auto"
-        >
-          <Plus className="w-5 h-5 mr-2" />
-          Nouveau BL
-        </button>
-      </div>
+    <>
+      <style>{BASE_STYLES}</style>
+      <div className="page-root relative z-10">
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+          <div className={`flex flex-wrap justify-between items-center gap-4 mb-8 fade-up ${loaded ? 'show' : ''}`}>
+            <div>
+              <h1 style={{ fontFamily: "'Playfair Display',serif", fontSize: 32, fontWeight: 700 }}>Bons de Livraison</h1>
+              <p style={{ color: 'var(--muted)', fontSize: 14, marginTop: 4 }}>{filtered.length} BL</p>
+            </div>
+            <div className="flex flex-wrap items-center gap-3">
+              <div style={{ position: 'relative' }}>
+                <Search size={15} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)' }} />
+                <input className="f-input" style={{ paddingLeft: 36, width: 240 }} placeholder="Rechercher..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
+              </div>
+              <button className="btn-primary" onClick={() => navigate('/deliveries/new')}><Plus size={16} /> Nouveau BL</button>
+            </div>
+          </div>
 
-      {filteredDeliveries.length === 0 ? (
-        <div className="bg-white rounded-lg shadow p-8 text-center text-gray-500">
-          Aucun bon de livraison trouvé
+          <div className={`glass fade-up d1 ${loaded ? 'show' : ''}`} style={{ overflow: 'hidden' }}>
+            <div style={{ overflowX: 'auto' }}>
+              <table className="data-table">
+                <thead><tr>
+                  <th>N° BL</th><th>Client</th><th>Date</th>
+                  <th className="right">Total</th><th className="center">Statut</th><th className="right">Actions</th>
+                </tr></thead>
+                <tbody>
+                  {filtered.length === 0 && <tr><td colSpan={6} style={{ textAlign: 'center', padding: '48px 20px', color: 'var(--muted)' }}>Aucun bon de livraison trouvé</td></tr>}
+                  {filtered.map(d => {
+                    const s = STATUS_DELIVERY[d.status] ?? STATUS_DELIVERY.draft
+                    return (
+                      <tr key={d.id}>
+                        <td><span className="ref-badge">{d.delivery_number}</span></td>
+                        <td style={{ fontWeight: 500 }}>{d.customer_name}</td>
+                        <td style={{ color: 'var(--muted)', fontSize: 13 }}>{new Date(d.delivery_date).toLocaleDateString('fr-FR')}</td>
+                        <td className="right" style={{ fontWeight: 700, fontFamily: "'Playfair Display',serif" }}>{d.total.toLocaleString()} DZD</td>
+                        <td className="center"><span className="status-pill" style={{ color: s.color, background: s.bg }}>{s.label}</span></td>
+                        <td className="right">
+                          <button className="icon-btn blue" title="Voir" onClick={() => navigate(`/deliveries/${d.id}`)}><Eye size={16} /></button>
+                          <button className="icon-btn orange" title="Télécharger PDF" onClick={() => handleDownloadPdf(d.id, d.delivery_number)} disabled={downloadingId === d.id}>
+                            {downloadingId === d.id ? <Loader2 size={16} className="spin" /> : <FileText size={16} />}
+                          </button>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
-      ) : (
-        <div className="bg-white rounded-lg shadow overflow-hidden overflow-x-auto">
-          <table className="w-full min-w-[800px]">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">N° BL</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Client</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Total</th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Statut</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {filteredDeliveries.map((delivery) => (
-                <tr key={delivery.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 font-mono text-sm text-gray-600">{delivery.delivery_number}</td>
-                  <td className="px-6 py-4 font-medium text-gray-900">{delivery.customer_name}</td>
-                  <td className="px-6 py-4 text-sm text-gray-500">{delivery.delivery_date}</td>
-                  <td className="px-6 py-4 text-right font-medium">
-                    {delivery.total.toLocaleString()} DZD
-                  </td>
-                  <td className="px-6 py-4 text-center">
-                    <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(delivery.status)}`}>
-                      {getStatusLabel(delivery.status)}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <button
-                      onClick={() => navigate(`/deliveries/${delivery.id}`)}
-                      className="text-blue-600 hover:text-blue-900 mr-3"
-                      title="Voir"
-                    >
-                      <Eye className="w-5 h-5" />
-                    </button>
-                    <button
-                      onClick={() => handleDownloadPdf(delivery.id, delivery.delivery_number)}
-                      disabled={downloadingId === delivery.id}
-                      className="text-orange-600 hover:text-orange-900 mr-3 disabled:opacity-50"
-                      title="Télécharger PDF"
-                    >
-                      {downloadingId === delivery.id ? (
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                      ) : (
-                        <FileText className="w-5 h-5" />
-                      )}
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </div>
+      </div>
+    </>
+  )
+}
+
+function Loader() {
+  return (
+    <>
+      <style>{`.loader{width:36px;height:36px;border:3px solid rgba(108,141,255,.2);border-top-color:#6c8dff;border-radius:50%;animation:spin .7s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+      <div style={{ minHeight: '100vh', background: '#0d0f14', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><div className="loader" /></div>
+    </>
   )
 }
